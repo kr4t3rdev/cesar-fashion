@@ -1,8 +1,9 @@
 import { revalidatePath } from "next/cache";
 import { hashPassword } from "@/lib/password";
 import { userInputSchema, type UserInputSchema } from "@/server/domain/user-schema";
+import { registerInputSchema } from "@/server/domain/register-schema";
 import type { ActionResult } from "@/server/domain/user-schema";
-import type { UserEntity } from "@/server/domain/user";
+import type { UserEntity, UserStatus } from "@/server/domain/user";
 import type { UserRepositoryPort } from "@/server/domain/repositories";
 import { userRepository } from "@/server/infrastructure/prisma-user-repository";
 
@@ -12,6 +13,9 @@ export interface UserService {
   createUser(input: unknown): Promise<ActionResult>;
   updateUser(id: string, input: unknown): Promise<ActionResult>;
   deleteUser(id: string, currentUserId: string): Promise<ActionResult>;
+  registerUser(input: unknown): Promise<ActionResult>;
+  setUserStatus(id: string, status: UserStatus): Promise<ActionResult>;
+  findByEmailWithStatus(email: string): Promise<UserEntity | null>;
 }
 
 export function createUserService(repo: UserRepositoryPort): UserService {
@@ -51,7 +55,7 @@ export function createUserService(repo: UserRepositoryPort): UserService {
       }
 
       const passwordHash = await hashPassword(data.password ?? "");
-      await repo.create({ ...data, password: passwordHash });
+      await repo.create({ ...data, password: passwordHash, status: data.status ?? "active" });
       revalidatePath("/admin/usuarios");
       return { ok: true, message: "Usuario creado correctamente" };
     },
@@ -69,10 +73,11 @@ export function createUserService(repo: UserRepositoryPort): UserService {
         return { ok: false, message: "Ya existe un usuario con ese email", fieldErrors: { email: ["Email ya registrado"] } };
       }
 
-      const patch: Partial<{ name: string | null; email: string; role: string; password: string }> = {
+      const patch: Partial<{ name: string | null; email: string; role: string; password: string; status: UserStatus }> = {
         name: data.name ?? null,
         email: data.email,
         role: data.role,
+        status: data.status,
       };
       if (data.password) {
         patch.password = await hashPassword(data.password);
@@ -102,6 +107,50 @@ export function createUserService(repo: UserRepositoryPort): UserService {
       const ok = await repo.delete(id);
       revalidatePath("/admin/usuarios");
       return ok ? { ok: true, message: "Usuario eliminado" } : { ok: false, message: "No se pudo eliminar el usuario" };
+    },
+
+    async registerUser(raw) {
+      const result = registerInputSchema.safeParse(raw);
+      if (!result.success) {
+        return { ok: false, message: "Revisa tus datos", fieldErrors: result.error.flatten().fieldErrors };
+      }
+      const data = result.data;
+
+      const existing = await repo.findByEmail(data.email);
+      if (existing) {
+        return { ok: true, message: "Cuenta creada. Espera la activación del administrador." };
+      }
+
+      const passwordHash = await hashPassword(data.password);
+      try {
+        await repo.create({
+          name: data.name,
+          email: data.email,
+          password: passwordHash,
+          role: "usuario",
+          status: "pending",
+        });
+      } catch {
+        return { ok: true, message: "Cuenta creada. Espera la activación del administrador." };
+      }
+      return { ok: true, message: "Cuenta creada. Espera la activación del administrador." };
+    },
+
+    async setUserStatus(id, status) {
+      const current = await repo.findById(id);
+      if (!current) return { ok: false, message: "Usuario no encontrado" };
+      if (current.role === "admin" && status !== "active") {
+        return { ok: false, message: "No puedes desactivar una cuenta de administrador" };
+      }
+      const updated = await repo.setStatus(id, status);
+      if (!updated) return { ok: false, message: "No se pudo actualizar el estado" };
+      revalidatePath("/admin/usuarios");
+      const label = status === "active" ? "activada" : status === "disabled" ? "desactivada" : "puesta en espera";
+      return { ok: true, message: `Cuenta de ${updated.name ?? updated.email} ${label}` };
+    },
+
+    async findByEmailWithStatus(email) {
+      return repo.findByEmailWithStatus(email);
     },
   };
 }

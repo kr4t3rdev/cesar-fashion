@@ -98,8 +98,10 @@ function getSnapshot(): CartItem[] {
   return items;
 }
 
+const EMPTY_ITEMS: CartItem[] = [];
+
 function getServerSnapshot(): CartItem[] {
-  return [];
+  return EMPTY_ITEMS;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

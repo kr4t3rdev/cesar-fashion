@@ -12,16 +12,18 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
-  password      String?
-  role            String    @default("admin")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  products        Product[]
-  combos          Combo[]
-  wholesaleSales  WholesaleSale[]
-  confirmedOrders Order[]
-  accounts        Account[]
-  sessions        Session[]
+  password       String?
+  status         String    @default("pending")
+  role           String    @default("admin")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  products       Product[]
+  combos         Combo[]
+  wholesaleSales WholesaleSale[]
+  confirmedOrders Order[]   @relation("OrderConfirmedBy")
+  customerOrders  Order[]   @relation("OrderCustomer")
+  accounts       Account[]
+  sessions       Session[]
 }
 
 model Account {
@@ -155,14 +157,17 @@ model Order {
   subtotal      Decimal    @db.Decimal(10, 2)
   total         Decimal    @db.Decimal(10, 2)
   status        String     @default("pending")
+  customerId    String?
+  customer      User?      @relation("OrderCustomer", fields: [customerId], references: [id])
   confirmedById String?
-  confirmedBy   User?      @relation(fields: [confirmedById], references: [id])
+  confirmedBy   User?      @relation("OrderConfirmedBy", fields: [confirmedById], references: [id])
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   items         OrderItem[]
 
   @@index([status])
   @@index([createdAt])
+  @@index([customerId])
 }
 
 model OrderItem {

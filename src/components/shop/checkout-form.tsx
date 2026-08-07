@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, CheckCircle2, Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/shop/cart/cart-context";
 import { createOrderAction } from "@/server/application/order-actions";
+import { CheckoutGate } from "@/components/shop/checkout-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,7 @@ export function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [confirmed, setConfirmed] = useState<{ reference: string } | null>(null);
+  const [gate, setGate] = useState<"guest" | "pending" | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +40,15 @@ export function CheckoutForm() {
         { customerName, customerPhone, customerEmail, note }
       );
 
+      if (result.code === "UNAUTHENTICATED") {
+        setGate("guest");
+        return;
+      }
+      if (result.code === "INACTIVE") {
+        setGate("pending");
+        return;
+      }
+
       if (!result.ok) {
         setError(result.message);
         setFieldErrors(result.fieldErrors ?? {});
@@ -48,6 +59,10 @@ export function CheckoutForm() {
       setConfirmed({ reference: result.reference ?? "" });
     });
   };
+
+  if (gate) {
+    return <CheckoutGate status={gate} />;
+  }
 
   if (confirmed) {
     return (

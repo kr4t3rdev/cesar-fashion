@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { updateComboAction } from "@/server/application/combo-actions";
 import type { ComboEntity } from "@/server/domain/combo";
 import type { ComboProductOption } from "@/components/admin/combo-form";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const initialState = { ok: false, message: "" };
 
@@ -73,7 +73,7 @@ export function EditComboForm({
                 <option value="">Selecciona producto</option>
                 {availableProducts(item.productId).map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} · {p.stock} uds
+                    {p.name} · {formatCurrency(p.price, p.currency)} {p.currency}
                   </option>
                 ))}
               </select>

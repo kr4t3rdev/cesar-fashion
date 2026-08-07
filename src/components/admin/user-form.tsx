@@ -45,6 +45,7 @@ export function UserForm() {
         >
           <option value="gestor">Gestor</option>
           <option value="admin">Admin</option>
+          <option value="usuario">Cliente</option>
         </select>
         {fieldErrors?.role && <p className="text-sm text-destructive">{fieldErrors.role[0]}</p>}
       </div>
@@ -73,4 +74,5 @@ export function UserForm() {
 export const USER_ROLES_LABELS: Record<(typeof USER_ROLES)[number], string> = {
   admin: "Admin",
   gestor: "Gestor",
+  usuario: "Cliente",
 };

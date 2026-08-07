@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { MobileMenu } from "./mobile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CartButton } from "@/components/shop/cart/cart-button";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { isStaff } from "@/server/application/roles";
 
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -13,8 +15,8 @@ const NAV_LINKS = [
 
 export async function SiteHeader() {
   const session = await auth();
-  const role = session?.user?.role;
-  const isStaff = role === "admin" || role === "gestor";
+  const isStaffRole = isStaff(session);
+  const isCustomer = !!session?.user && !isStaffRole;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
@@ -42,13 +44,15 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           <CartButton />
           <ThemeToggle />
-          {isStaff ? (
+          {isStaffRole ? (
             <Link
               href="/admin"
               className="inline-flex h-11 items-center rounded-md border border-primary bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Dashboard
             </Link>
+          ) : isCustomer ? (
+            <SignOutButton />
           ) : (
             <Link
               href="/login"

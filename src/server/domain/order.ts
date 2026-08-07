@@ -16,6 +16,7 @@ export interface OrderItemEntity {
 
 export interface OrderEntity {
   id: string;
+  customerId: string | null;
   customerName: string;
   customerPhone: string | null;
   customerEmail: string | null;
@@ -52,6 +53,7 @@ export interface StockEffect {
 }
 
 export interface OrderCreateInput {
+  customerId: string | null;
   customerName: string;
   customerPhone: string | null;
   customerEmail: string | null;

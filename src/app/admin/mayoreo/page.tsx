@@ -23,6 +23,8 @@ export default async function AdminWholesalePage() {
     id: p.id,
     name: p.name,
     stock: p.stock,
+    price: p.price,
+    currency: p.currency,
     isWholesale: p.isWholesale,
     wholesaleUnitName: p.wholesaleUnitName,
     wholesaleUnitQuantity: p.wholesaleUnitQuantity,

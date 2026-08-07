@@ -2,14 +2,21 @@
 
 import { auth } from "@/auth";
 import { orderService, type OrderActionResult } from "@/server/application/order-service";
-import { canManage, currentUserId } from "@/server/application/roles";
+import { canManage, currentUserId, isActiveUser } from "@/server/application/roles";
 import type { ActionResult } from "@/server/domain/product-schema";
 
 export async function createOrderAction(
   cart: unknown,
   customer: unknown
 ): Promise<OrderActionResult> {
-  return orderService.createOrder(cart, customer);
+  const session = await auth();
+  if (!session?.user) {
+    return { ok: false, message: "Inicia sesión para finalizar tu pedido", code: "UNAUTHENTICATED" };
+  }
+  if (!isActiveUser(session)) {
+    return { ok: false, message: "Tu cuenta está pendiente de activación", code: "INACTIVE" };
+  }
+  return orderService.createOrder(cart, customer, { customerId: session.user.id });
 }
 
 export async function markOrderPaidAction(formData: FormData): Promise<ActionResult> {

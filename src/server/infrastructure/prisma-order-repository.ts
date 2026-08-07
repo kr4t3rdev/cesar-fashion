@@ -23,14 +23,16 @@ type OrderItemRow = {
 type OrderWithRelations = Order & {
   items: OrderItemRow[];
   confirmedBy: { name: string | null } | null;
+  customer: { name: string | null; email: string } | null;
 };
 
 function toEntity(o: OrderWithRelations): OrderEntity {
   return {
     id: o.id,
+    customerId: o.customerId,
     customerName: o.customerName,
     customerPhone: o.customerPhone,
-    customerEmail: o.customerEmail,
+    customerEmail: o.customer?.email ?? o.customerEmail,
     note: o.note,
     currency: o.currency,
     subtotal: Number(o.subtotal),
@@ -56,6 +58,7 @@ function toEntity(o: OrderWithRelations): OrderEntity {
 const orderInclude = {
   items: true,
   confirmedBy: { select: { name: true } },
+  customer: { select: { name: true, email: true } },
 } as const;
 
 export class PrismaOrderRepository implements OrderRepositoryPort {
@@ -86,6 +89,7 @@ export class PrismaOrderRepository implements OrderRepositoryPort {
 
       const order = await tx.order.create({
         data: {
+          customerId: input.customerId,
           customerName: input.customerName,
           customerPhone: input.customerPhone,
           customerEmail: input.customerEmail,

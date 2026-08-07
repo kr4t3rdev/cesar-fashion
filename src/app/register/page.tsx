@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { LoginForm } from "@/components/auth/login-form";
+import { RegisterForm } from "@/components/auth/register-form";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesión",
+  title: "Crear cuenta — Cesar Fashion",
 };
 
-export default async function LoginPage() {
-  const session = await auth();
-  if (session?.user) redirect(session.user.role === "usuario" ? "/" : "/admin");
-
+export default function RegisterPage() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4">
       <div className="w-full max-w-sm">
@@ -18,13 +13,13 @@ export default async function LoginPage() {
           <p className="font-display text-3xl font-semibold tracking-tight">
             Cesar Fashion <span className="text-accent">LLC</span>
           </p>
-          <p className="mt-2 text-sm text-muted-foreground">Inicia sesión en tu cuenta</p>
+          <p className="mt-2 text-sm text-muted-foreground">Crea tu cuenta para finalizar pedidos</p>
         </div>
         <div className="rounded-xl border bg-card p-6 shadow-sm">
-          <LoginForm />
+          <RegisterForm />
         </div>
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          El acceso al panel de administración requiere una cuenta de gestor o administrador.
+          Tu cuenta debe ser activada por el administrador antes de poder pedir.
         </p>
       </div>
     </div>

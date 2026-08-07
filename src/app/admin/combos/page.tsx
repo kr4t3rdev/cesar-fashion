@@ -17,7 +17,7 @@ export default async function AdminCombosPage() {
 
   const [combos, products] = await Promise.all([comboService.listCombos({ includeInactive: true }), productService.listProducts()]);
 
-  const productOptions = products.map((p) => ({ id: p.id, name: p.name, stock: p.stock }));
+  const productOptions = products.map((p) => ({ id: p.id, name: p.name, stock: p.stock, price: p.price, currency: p.currency }));
 
   return (
     <div className="flex flex-col gap-8">

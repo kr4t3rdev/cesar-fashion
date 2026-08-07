@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_ROLES } from "@/server/domain/user";
+import { USER_ROLES, USER_STATUSES } from "@/server/domain/user";
 
 export const userInputSchema = z.object({
   name: z.string().trim().max(120).optional().nullable(),
@@ -13,6 +13,7 @@ export const userInputSchema = z.object({
     .nullable()
     .transform((v) => (v === "" ? undefined : v)),
   role: z.enum(USER_ROLES, { message: "Rol inválido" }),
+  status: z.enum(USER_STATUSES, { message: "Estado inválido" }).optional(),
 });
 
 export type UserInputSchema = z.infer<typeof userInputSchema>;

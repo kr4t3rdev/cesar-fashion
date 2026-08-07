@@ -22,7 +22,7 @@ export default async function AdminUsersPage() {
         <Card className="lg:sticky lg:top-6">
           <CardHeader>
             <CardTitle>Nuevo usuario</CardTitle>
-            <CardDescription>Crea una cuenta para un gestor o administrador.</CardDescription>
+            <CardDescription>Crea una cuenta para gestores, administradores o clientes.</CardDescription>
           </CardHeader>
           <CardContent>
             <UserForm />

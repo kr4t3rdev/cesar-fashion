@@ -6,9 +6,8 @@ import { AdminNav } from "@/components/admin/admin-nav";
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
   const role = session?.user?.role;
-  if (!session?.user || (role !== "admin" && role !== "gestor")) {
-    redirect("/login");
-  }
+  if (!session?.user) redirect("/login");
+  if (role !== "admin" && role !== "gestor") redirect("/");
 
   const isAdmin = role === "admin";
 

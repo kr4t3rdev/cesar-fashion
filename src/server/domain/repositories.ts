@@ -1,5 +1,5 @@
 import type { ProductEntity, ProductInput } from "@/server/domain/product";
-import type { UserEntity, UserInput } from "@/server/domain/user";
+import type { UserEntity, UserInput, UserStatus } from "@/server/domain/user";
 import type { ComboEntity, ComboInput } from "@/server/domain/combo";
 import type { OrderEntity, OrderCreateInput, OrderStatus } from "@/server/domain/order";
 
@@ -15,8 +15,10 @@ export interface UserRepositoryPort {
   findAll(): Promise<UserEntity[]>;
   findById(id: string): Promise<UserEntity | null>;
   findByEmail(email: string): Promise<UserEntity | null>;
+  findByEmailWithStatus(email: string): Promise<UserEntity | null>;
   create(input: UserInput): Promise<UserEntity>;
   update(id: string, input: Partial<UserInput>): Promise<UserEntity | null>;
+  setStatus(id: string, status: UserStatus): Promise<UserEntity | null>;
   delete(id: string): Promise<boolean>;
 }
 

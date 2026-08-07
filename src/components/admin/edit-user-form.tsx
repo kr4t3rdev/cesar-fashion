@@ -47,6 +47,7 @@ export function EditUserForm({ user, onDone }: { user: UserEntity; onDone?: () =
         >
           <option value="gestor">Gestor</option>
           <option value="admin">Admin</option>
+          <option value="usuario">Cliente</option>
         </select>
         {fieldErrors?.role && <p className="text-sm text-destructive">{fieldErrors.role[0]}</p>}
       </div>

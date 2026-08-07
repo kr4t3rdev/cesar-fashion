@@ -13,7 +13,7 @@ async function ensureAdmin() {
   const passwordHash = await hashPassword(ADMIN_PASSWORD);
   if (!existing) {
     await prisma.user.create({
-      data: { email: ADMIN_EMAIL, name: "Cesar Admin", password: passwordHash, role: "admin" },
+      data: { email: ADMIN_EMAIL, name: "Cesar Admin", password: passwordHash, role: "admin", status: "active" },
     });
     return;
   }
@@ -42,25 +42,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { email: String(credentials.email) },
         });
         if (!user?.password) return null;
+        if (user.status !== "active") return null;
         const valid = await verifyPassword(String(credentials.password), user.password);
         if (!valid) return null;
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        return { id: user.id, email: user.email, name: user.name, role: user.role, status: user.status };
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = (user as { role?: string }).role ?? "admin";
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = (token.sub as string | undefined) ?? session.user.id;
-        (session.user as { role?: string }).role = (token.role as string) ?? "admin";
-      }
-      return session;
-    },
-  },
 });

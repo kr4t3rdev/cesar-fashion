@@ -1,6 +1,7 @@
 import type { User as PrismaUser } from "@prisma/client";
-import type { UserEntity, UserInput } from "@/server/domain/user";
+import type { UserEntity, UserInput, UserStatus } from "@/server/domain/user";
 import type { UserRepositoryPort } from "@/server/domain/repositories";
+import { isUserStatus } from "@/server/domain/user";
 import { prisma } from "./prisma";
 
 function toEntity(u: PrismaUser): UserEntity {
@@ -9,6 +10,7 @@ function toEntity(u: PrismaUser): UserEntity {
     name: u.name,
     email: u.email,
     role: u.role,
+    status: isUserStatus(u.status) ? u.status : "pending",
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   };
@@ -30,6 +32,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return u ? toEntity(u) : null;
   }
 
+  async findByEmailWithStatus(email: string): Promise<UserEntity | null> {
+    return this.findByEmail(email);
+  }
+
   async create(input: UserInput): Promise<UserEntity> {
     const u = await prisma.user.create({
       data: {
@@ -37,6 +43,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         email: input.email,
         password: input.password ?? null,
         role: input.role,
+        status: input.status ?? "active",
       },
     });
     return toEntity(u);
@@ -50,8 +57,19 @@ export class PrismaUserRepository implements UserRepositoryPort {
           name: input.name === undefined ? undefined : input.name ?? null,
           email: input.email,
           role: input.role,
+          status: input.status,
           password: input.password === undefined ? undefined : input.password ?? null,
         },
+      })
+      .catch(() => null);
+    return u ? toEntity(u) : null;
+  }
+
+  async setStatus(id: string, status: UserStatus): Promise<UserEntity | null> {
+    const u = await prisma.user
+      .update({
+        where: { id },
+        data: { status },
       })
       .catch(() => null);
     return u ? toEntity(u) : null;

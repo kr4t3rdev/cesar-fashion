@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { checkAccountStatusAction } from "@/server/application/register-actions";
 
 export function LoginForm() {
   const router = useRouter();
@@ -18,16 +20,25 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const email = String(formData.get("email") ?? "");
     const result = await signIn("credentials", {
-      email: formData.get("email"),
+      email,
       password: formData.get("password"),
       redirect: false,
     });
-    setLoading(false);
     if (result?.error) {
-      setError("Credenciales incorrectas");
+      const status = await checkAccountStatusAction(email);
+      if (status === "pending") {
+        setError("Tu cuenta está pendiente de activación por el administrador.");
+      } else if (status === "disabled") {
+        setError("Tu cuenta está desactivada. Contacta al administrador.");
+      } else {
+        setError("Credenciales incorrectas");
+      }
+      setLoading(false);
       return;
     }
+    setLoading(false);
     router.push("/admin");
     router.refresh();
   }
@@ -51,6 +62,12 @@ export function LoginForm() {
         {loading && <Loader2 className="animate-spin" />}
         {loading ? "Iniciando sesión…" : "Iniciar sesión"}
       </Button>
+      <p className="text-center text-xs text-muted-foreground">
+        ¿No tienes cuenta?{" "}
+        <Link href="/register" className="font-medium text-primary hover:underline">
+          Crea una
+        </Link>
+      </p>
     </form>
   );
 }

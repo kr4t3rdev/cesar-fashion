@@ -8,12 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { createComboAction } from "@/server/application/combo-actions";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export interface ComboProductOption {
   id: string;
   name: string;
   stock: number;
+  price: number;
+  currency: string;
 }
 
 const initialState = { ok: false, message: "" };
@@ -62,7 +64,7 @@ export function ComboForm({ products }: { products: ComboProductOption[] }) {
                 <option value="">Selecciona producto</option>
                 {availableProducts(item.productId).map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} · {p.stock} uds
+                    {p.name} · {formatCurrency(p.price, p.currency)} {p.currency}
                   </option>
                 ))}
               </select>

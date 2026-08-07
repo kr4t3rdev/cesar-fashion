@@ -112,6 +112,11 @@ export function OrdersTable({ orders }: { orders: OrderEntity[] }) {
                       {order.customerPhone && order.customerEmail ? " · " : ""}
                       {order.customerEmail}
                     </div>
+                    {order.customerId && (
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        <Badge variant="outline" className="mt-1">Cuenta registrada</Badge>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex max-w-56 flex-col gap-1">

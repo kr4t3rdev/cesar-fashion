@@ -9,6 +9,7 @@ import type { OrderRepositoryPort } from "@/server/domain/repositories";
 import { orderRepository } from "@/server/infrastructure/prisma-order-repository";
 import { productRepository } from "@/server/infrastructure/prisma-product-repository";
 import { comboRepository } from "@/server/infrastructure/prisma-combo-repository";
+import { userRepository } from "@/server/infrastructure/prisma-user-repository";
 
 function round2(n: number): number {
   return Number(n.toFixed(2));
@@ -17,10 +18,11 @@ function round2(n: number): number {
 export interface OrderActionResult extends ActionResult {
   orderId?: string;
   reference?: string;
+  code?: "UNAUTHENTICATED" | "INACTIVE";
 }
 
 export interface OrderService {
-  createOrder(cart: unknown, customer: unknown): Promise<OrderActionResult>;
+  createOrder(cart: unknown, customer: unknown, opts?: { customerId?: string | null }): Promise<OrderActionResult>;
   listOrders(options?: { limit?: number; status?: OrderStatus }): Promise<OrderEntity[]>;
   getOrder(id: string): Promise<OrderEntity | null>;
   pendingCount(): Promise<number>;
@@ -29,7 +31,14 @@ export interface OrderService {
 
 export function createOrderService(repo: OrderRepositoryPort): OrderService {
   return {
-    async createOrder(rawCart, rawCustomer) {
+    async createOrder(rawCart, rawCustomer, opts) {
+      if (opts?.customerId) {
+        const account = await userRepository.findById(opts.customerId);
+        if (!account || account.status !== "active") {
+          return { ok: false, message: "Tu cuenta no está activa", code: "INACTIVE" };
+        }
+      }
+
       const customer = orderInputSchema.safeParse(rawCustomer);
       if (!customer.success) {
         return { ok: false, message: "Revisa tus datos", fieldErrors: customer.error.flatten().fieldErrors };
@@ -95,6 +104,7 @@ export function createOrderService(repo: OrderRepositoryPort): OrderService {
       }
 
       const result = await repo.createOrder({
+        customerId: opts?.customerId ?? null,
         customerName: customer.data.customerName,
         customerPhone: customer.data.customerPhone ?? null,
         customerEmail: customer.data.customerEmail ?? null,

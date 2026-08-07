@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { declareWholesaleProductAction } from "@/server/application/wholesale-actions";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export interface WholesaleProductOption {
   id: string;
   name: string;
   stock: number;
+  price: number;
+  currency: string;
   isWholesale: boolean;
   wholesaleUnitName: string | null;
   wholesaleUnitQuantity: number;
@@ -53,7 +55,8 @@ export function WholesaleDeclarationForm({ products }: { products: WholesaleProd
           <option value="">Selecciona producto</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.name} · {p.stock} uds{p.isWholesale ? " (declarado)" : ""}
+              {p.name} · {formatCurrency(p.price, p.currency)} {p.currency}
+              {p.isWholesale ? " (declarado)" : ""}
             </option>
           ))}
         </select>
