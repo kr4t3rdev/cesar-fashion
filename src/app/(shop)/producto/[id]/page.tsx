@@ -12,8 +12,12 @@ export const metadata = {
 };
 
 export async function generateStaticParams() {
-  const products = await productService.listProducts();
-  return products.map((p) => ({ id: p.id }));
+  try {
+    const products = await productService.listProducts();
+    return products.map((p) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function ProductoPage({ params }: { params: Promise<{ id: string }> }) {
