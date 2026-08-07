@@ -69,3 +69,8 @@ export function productDiscountPercent(p: Pick<ProductEntity, "price" | "salePri
   if (p.salePrice === null || p.price <= 0) return null;
   return Math.round((1 - p.salePrice / p.price) * 100);
 }
+
+export function productEffectivePrice(p: Pick<ProductEntity, "price" | "salePrice" | "isOnSale" | "stock">): number {
+  if (productIsOnSale(p) && p.salePrice !== null) return p.salePrice;
+  return p.price;
+}

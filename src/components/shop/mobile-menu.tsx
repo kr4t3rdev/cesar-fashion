@@ -20,7 +20,7 @@ export function MobileMenu() {
         onClick={() => setOpen(!open)}
         aria-label={open ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={open}
-        className="rounded-md p-2 transition-colors hover:bg-secondary"
+        className="rounded-md p-2.5 transition-colors hover:bg-secondary"
       >
         {open ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>

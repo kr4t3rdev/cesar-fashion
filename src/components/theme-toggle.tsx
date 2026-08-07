@@ -16,16 +16,19 @@ export function ThemeToggle() {
   const dark = useSyncExternalStore(subscribe, getSnapshot, () => false);
 
   const toggle = () => {
-    const next = !dark;
+    const next = !document.documentElement.classList.contains("dark");
     document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
+    try {
+      localStorage.setItem("theme", next ? "dark" : "light");
+    } catch {}
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
     <button
       onClick={toggle}
       aria-label={dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-      className="rounded-md p-2 transition-colors hover:bg-secondary"
+      className="rounded-md p-2.5 transition-colors hover:bg-secondary"
     >
       {dark ? <Sun className="size-5" /> : <Moon className="size-5" />}
     </button>

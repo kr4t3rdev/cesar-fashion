@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { productDiscountPercent } from "@/server/domain/product";
+import { AddToCartButton } from "@/components/shop/add-to-cart-button";
+import { productDiscountPercent, productEffectivePrice } from "@/server/domain/product";
 import { formatCurrency } from "@/lib/utils";
 import type { ProductEntity } from "@/server/domain/product";
 
@@ -10,13 +11,14 @@ const FALLBACK_IMAGE = "/placeholder-product.svg";
 export function ProductCard({ product }: { product: ProductEntity }) {
   const discount = productDiscountPercent(product);
   const isOnSale = product.isOnSale && product.salePrice !== null;
+  const unitPrice = productEffectivePrice(product);
 
   return (
-    <Link
-      href={`/producto/${product.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border bg-card transition-all hover:border-foreground/20 hover:shadow-lg"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all hover:border-foreground/20 hover:shadow-lg">
+      <Link
+        href={`/producto/${product.id}`}
+        className="relative aspect-[4/5] overflow-hidden bg-secondary"
+      >
         <Image
           src={product.imageUrl ?? FALLBACK_IMAGE}
           alt={product.name}
@@ -30,10 +32,28 @@ export function ProductCard({ product }: { product: ProductEntity }) {
             <Badge variant="secondary">{product.saleLabel}</Badge>
           )}
         </div>
-      </div>
+      </Link>
+
+      <AddToCartButton
+        item={{
+          kind: "product",
+          id: product.id,
+          name: product.name,
+          imageUrl: product.imageUrl,
+          unitPrice,
+          currency: product.currency,
+          maxQuantity: product.stock,
+        }}
+        className="absolute right-3 top-3"
+      />
+
       <div className="flex flex-1 flex-col gap-1 p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{product.category}</p>
-        <h3 className="font-display text-lg font-semibold leading-snug">{product.name}</h3>
+        <Link href={`/producto/${product.id}`}>
+          <h3 className="font-display text-lg font-semibold leading-snug transition-colors group-hover:text-accent">
+            {product.name}
+          </h3>
+        </Link>
         <p className="line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
         <div className="mt-auto flex items-baseline gap-2 pt-3">
           {isOnSale && product.salePrice !== null ? (
@@ -52,6 +72,6 @@ export function ProductCard({ product }: { product: ProductEntity }) {
           )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

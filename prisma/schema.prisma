@@ -19,6 +19,7 @@ model User {
   products        Product[]
   combos          Combo[]
   wholesaleSales  WholesaleSale[]
+  confirmedOrders Order[]
   accounts        Account[]
   sessions        Session[]
 }
@@ -142,4 +143,39 @@ model WholesaleSale {
 
   @@index([createdAt])
   @@index([productId])
+}
+
+model Order {
+  id            String     @id @default(cuid())
+  customerName  String
+  customerPhone String?
+  customerEmail String?
+  note          String?
+  currency      String     @default("USD")
+  subtotal      Decimal    @db.Decimal(10, 2)
+  total         Decimal    @db.Decimal(10, 2)
+  status        String     @default("pending")
+  confirmedById String?
+  confirmedBy   User?      @relation(fields: [confirmedById], references: [id])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  items         OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind      String
+  productId String?
+  comboId   String?
+  name      String
+  unitPrice Decimal @db.Decimal(10, 2)
+  quantity  Int
+  currency  String  @default("USD")
+
+  @@index([orderId])
 }

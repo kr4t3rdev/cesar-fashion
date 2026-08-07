@@ -3,8 +3,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AddToCartButton } from "@/components/shop/add-to-cart-button";
 import { comboService } from "@/server/application/combo-service";
-import { comboAvailable, comboDiscountPercent, comboTotalUnits, type ComboEntity } from "@/server/domain/combo";
+import {
+  comboAvailable,
+  comboDiscountPercent,
+  comboEffectivePrice,
+  comboMaxQuantity,
+  comboTotalUnits,
+  type ComboEntity,
+} from "@/server/domain/combo";
 import { formatCurrency } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
@@ -12,6 +20,8 @@ const FALLBACK_IMAGE = "/placeholder-product.svg";
 export const metadata = {
   title: "Combo",
 };
+
+export const dynamic = "force-dynamic";
 
 async function getCombo(id: string): Promise<ComboEntity | null> {
   try {
@@ -80,12 +90,18 @@ export default async function ComboDetailPage({ params }: { params: Promise<{ id
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <button
-              disabled={!available}
-              className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-            >
-              Añadir al carrito
-            </button>
+            <AddToCartButton
+              label="Añadir al carrito"
+              item={{
+                kind: "combo",
+                id: combo.id,
+                name: combo.name,
+                imageUrl: combo.imageUrl,
+                unitPrice: comboEffectivePrice(combo),
+                currency: combo.currency,
+                maxQuantity: comboMaxQuantity(combo),
+              }}
+            />
           </div>
 
           <div className="mt-10">

@@ -2,6 +2,7 @@ import type { ProductEntity, ProductInput } from "@/server/domain/product";
 import type { UserEntity, UserInput } from "@/server/domain/user";
 import type { ComboEntity, ComboInput } from "@/server/domain/combo";
 import type { WholesaleSaleEntity, WholesaleSaleInput } from "@/server/domain/wholesale";
+import type { OrderEntity, OrderCreateInput, OrderStatus } from "@/server/domain/order";
 
 export interface ProductRepositoryPort {
   findAll(options?: { includeOnSale?: boolean }): Promise<ProductEntity[]>;
@@ -34,4 +35,18 @@ export interface WholesaleSaleRepositoryPort {
     input: WholesaleSaleInput & { createdById?: string | null }
   ): Promise<{ ok: true; sale: WholesaleSaleEntity } | { ok: false; message: string }>;
   productTotalUnitsSold(productId: string): Promise<number>;
+}
+
+export interface OrderRepositoryPort {
+  createOrder(
+    input: OrderCreateInput
+  ): Promise<{ ok: true; order: OrderEntity } | { ok: false; message: string }>;
+  findAll(options?: { limit?: number; status?: OrderStatus }): Promise<OrderEntity[]>;
+  findById(id: string): Promise<OrderEntity | null>;
+  countPending(): Promise<number>;
+  setStatus(
+    id: string,
+    status: OrderStatus,
+    confirmedById?: string | null
+  ): Promise<{ ok: true; order: OrderEntity } | { ok: false; message: string }>;
 }

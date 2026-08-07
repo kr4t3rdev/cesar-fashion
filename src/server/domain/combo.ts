@@ -69,3 +69,13 @@ export function comboAvailable(c: Pick<ComboEntity, "items">): boolean {
   if (c.items.length === 0) return false;
   return c.items.every((i) => i.product.stock >= i.quantity);
 }
+
+export function comboEffectivePrice(c: Pick<ComboEntity, "price" | "salePrice" | "isOnSale">): number {
+  if (comboIsOnSale(c) && c.salePrice !== null) return c.salePrice;
+  return c.price;
+}
+
+export function comboMaxQuantity(c: ComboEntity): number {
+  if (c.items.length === 0) return 0;
+  return Math.min(...c.items.map((i) => Math.floor(i.product.stock / i.quantity)));
+}

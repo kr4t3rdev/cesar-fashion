@@ -1,8 +1,9 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { AddToCartButton } from "@/components/shop/add-to-cart-button";
 import { productService } from "@/server/application/product-service";
-import { productDiscountPercent } from "@/server/domain/product";
+import { productDiscountPercent, productEffectivePrice } from "@/server/domain/product";
 import { formatCurrency } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
@@ -11,14 +12,7 @@ export const metadata = {
   title: "Producto",
 };
 
-export async function generateStaticParams() {
-  try {
-    const products = await productService.listProducts();
-    return products.map((p) => ({ id: p.id }));
-  } catch {
-    return [];
-  }
-}
+export const dynamic = "force-dynamic";
 
 export default async function ProductoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -80,12 +74,18 @@ export default async function ProductoPage({ params }: { params: Promise<{ id: s
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <button
-              disabled={product.stock === 0}
-              className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-            >
-              Añadir al carrito
-            </button>
+            <AddToCartButton
+              label="Añadir al carrito"
+              item={{
+                kind: "product",
+                id: product.id,
+                name: product.name,
+                imageUrl: product.imageUrl,
+                unitPrice: productEffectivePrice(product),
+                currency: product.currency,
+                maxQuantity: product.stock,
+              }}
+            />
           </div>
         </div>
       </div>
