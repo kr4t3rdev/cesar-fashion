@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
@@ -10,8 +10,15 @@ import { formatCurrency } from "@/lib/utils";
 const FALLBACK_IMAGE = "/placeholder-product.svg";
 
 export function CartDrawer() {
-  const { isOpen, closeCart, items, setQuantity, removeItem, subtotal, count } = useCart();
+  const { isOpen, closeCart, items, setQuantity, removeItem, clearCart, subtotal, count } = useCart();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
+
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (prevIsOpen !== isOpen) {
+    setPrevIsOpen(isOpen);
+    if (!isOpen) setConfirmClear(false);
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,6 +154,39 @@ export function CartDrawer() {
               >
                 Finalizar pedido <ArrowRight className="size-4" />
               </Link>
+              {confirmClear ? (
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm text-muted-foreground">¿Vaciar todo el carrito?</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setConfirmClear(false)}
+                      className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearCart();
+                        setConfirmClear(false);
+                      }}
+                      className="cursor-pointer rounded-md bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                    >
+                      Vaciar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmClear(true)}
+                  className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:text-destructive"
+                >
+                  <Trash2 className="size-4" />
+                  Vaciar carrito
+                </button>
+              )}
               <p className="text-center text-xs text-muted-foreground">
                 Te contactaremos para coordinar la entrega y el pago.
               </p>
