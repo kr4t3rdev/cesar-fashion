@@ -1,13 +1,41 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Tag } from "lucide-react";
+import { ArrowRight, Droplets, Shirt, ShieldCheck, Smartphone, Sparkles, Tag } from "lucide-react";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { productService } from "@/server/application/product-service";
 import { productIsOnSale } from "@/server/domain/product";
 
 export const metadata = {
-  title: "Moda Editorial — Cesar Fashion LLC",
+  title: "Moda, Belleza y Tecnología — Cesar Fashion LLC",
 };
+
+const CATEGORIES = [
+  {
+    title: "Moda y calzado",
+    description: "Ropa y zapatos para hombre y mujer, seleccionados con criterio.",
+    icon: Shirt,
+  },
+  {
+    title: "Belleza Mary Kay",
+    description: "Accesorios de maquillaje de la mano de Mary Kay.",
+    icon: Sparkles,
+  },
+  {
+    title: "Teléfonos",
+    description: "Samsung y Xiaomi Redmi, con garantía y buena condición.",
+    icon: Smartphone,
+  },
+  {
+    title: "Accesorios para teléfonos",
+    description: "Covers y micas para proteger tu equipo.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Aseo personal",
+    description: "Cremas para la piel y sprays corporales para tu día a día.",
+    icon: Droplets,
+  },
+];
 
 export default async function HomePage() {
   const products = await productService.listProducts();
@@ -23,22 +51,23 @@ export default async function HomePage() {
           <div>
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
               <Tag className="size-3.5 text-accent" />
-              Nueva colección 2026
+              Nuevo catálogo 2026
             </p>
             <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.5rem]">
-              Viste con
+              Todo lo que buscas,
               <br />
-              <em className="text-accent">intención</em>.
+              <em className="text-accent">en un solo lugar</em>.
             </h1>
             <p className="mt-6 max-w-md text-lg text-muted-foreground">
-              Piezas seleccionadas de alta calidad para quienes entienden la moda como una declaración.
+              Moda y calzado, belleza Mary Kay, teléfonos Samsung y Xiaomi Redmi, accesorios y aseo personal. Cada
+              pieza curada con intención para ti.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/catalogo"
                 className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
               >
-                Explorar colección
+                Explorar catálogo
                 <ArrowRight className="size-4" />
               </Link>
               <Link
@@ -67,12 +96,35 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Categories */}
+      <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">Lo que encuentras aquí</h2>
+          <p className="mt-2 text-muted-foreground">Cinco líneas de producto para cubrir tu estilo y tu día a día.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {CATEGORIES.map((category) => (
+            <Link
+              key={category.title}
+              href="/catalogo"
+              className="group flex flex-col justify-between rounded-xl border bg-background p-6 transition-colors hover:border-foreground/20 hover:bg-secondary"
+            >
+              <category.icon className="size-6 text-accent" />
+              <div className="mt-10">
+                <h3 className="font-display text-lg font-semibold">{category.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{category.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Featured products */}
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h2 className="font-display text-3xl font-semibold tracking-tight">Piezas destacadas</h2>
-            <p className="mt-2 text-muted-foreground">Una selección curada de nuestra colección.</p>
+            <p className="mt-2 text-muted-foreground">Una selección curada de nuestro inventario.</p>
           </div>
           <Link
             href="/catalogo"
@@ -89,10 +141,10 @@ export default async function HomePage() {
         <div className="relative overflow-hidden rounded-2xl bg-primary px-6 py-16 text-primary-foreground sm:px-12">
           <p className="text-xs uppercase tracking-[0.3em] opacity-70">Cesar Fashion LLC</p>
           <h2 className="mt-4 max-w-xl font-display text-3xl font-semibold leading-tight sm:text-4xl">
-            La elegancia no se anuncia, se lleva.
+            Estilo, cuidado y tecnología, sin salir de aquí.
           </h2>
           <p className="mt-4 max-w-lg opacity-80">
-            Materiales nobles, cortes pensados y una curaduría que trasciende tendencias.
+            Una tienda que entiende lo que necesitas: viste con intención, cuida tu piel y lleva tu teléfono al día.
           </p>
         </div>
       </section>

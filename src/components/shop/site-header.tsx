@@ -39,14 +39,14 @@ export async function SiteHeader() {
           {isAdmin ? (
             <Link
               href="/admin"
-              className="rounded-md border border-primary bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="inline-flex h-11 items-center rounded-md border border-primary bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Dashboard
             </Link>
           ) : (
             <Link
               href="/login"
-              className="rounded-md border border-input px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary"
+              className="inline-flex h-11 items-center rounded-md border border-input px-4 text-sm font-medium transition-colors hover:bg-secondary"
             >
               Iniciar sesión
             </Link>
