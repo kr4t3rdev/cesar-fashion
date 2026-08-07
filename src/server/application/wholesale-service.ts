@@ -1,86 +1,83 @@
 import { revalidatePath } from "next/cache";
-import { saleInputSchema, type SaleInputSchema } from "@/server/domain/sale-schema";
-import type { ActionResult } from "@/server/domain/sale-schema";
-import type { WholesaleProductEntity, WholesaleSaleEntity, WholesaleSaleSummary } from "@/server/domain/wholesale";
-import type { WholesaleSaleRepositoryPort } from "@/server/domain/repositories";
-import { wholesaleSaleRepository } from "@/server/infrastructure/prisma-wholesale-repository";
+import {
+  wholesaleDeclarationSchema,
+  type ActionResult,
+  type WholesaleDeclarationInput,
+  type WholesaleProductEntity,
+} from "@/server/domain/wholesale";
+import type { ProductEntity } from "@/server/domain/product";
 import { productRepository } from "@/server/infrastructure/prisma-product-repository";
 
 export interface WholesaleService {
+  listProducts(): Promise<ProductEntity[]>;
   listWholesaleProducts(): Promise<WholesaleProductEntity[]>;
-  listSales(options?: { limit?: number }): Promise<WholesaleSaleEntity[]>;
-  summary(limit?: number): Promise<WholesaleSaleSummary>;
-  registerSale(input: unknown, createdById?: string | null): Promise<ActionResult>;
+  declareProduct(input: unknown): Promise<ActionResult>;
+  undeclareProduct(id: string): Promise<ActionResult>;
 }
 
-export function createWholesaleService(repo: WholesaleSaleRepositoryPort): WholesaleService {
-  const parse = (raw: unknown) => {
-    const result = saleInputSchema.safeParse(raw);
+export function createWholesaleService(): WholesaleService {
+  const parse = (
+    raw: unknown
+  ):
+    | { ok: true; data: WholesaleDeclarationInput }
+    | { ok: false; message: string; fieldErrors: Record<string, string[]> } => {
+    const result = wholesaleDeclarationSchema.safeParse(raw);
     if (!result.success) {
-      return { ok: false as const, message: "Datos inválidos", fieldErrors: result.error.flatten().fieldErrors };
+      return { ok: false, message: "Datos inválidos", fieldErrors: result.error.flatten().fieldErrors };
     }
-    return { ok: true as const, data: result.data as SaleInputSchema };
+    return { ok: true, data: result.data };
   };
 
   return {
+    async listProducts() {
+      return productRepository.findAll();
+    },
+
     async listWholesaleProducts() {
       const products = await productRepository.findAll();
       return products.filter((p) => p.isWholesale);
     },
 
-    async listSales(options) {
-      return repo.findAll(options);
-    },
-
-    async summary(limit = 5) {
-      const all = await repo.findAll();
-      const totalRevenue = all.reduce((acc, s) => acc + s.total, 0);
-      const totalPiecesSold = all.reduce((acc, s) => acc + s.pieces, 0);
-      return {
-        totalSales: all.length,
-        totalRevenue,
-        totalPiecesSold,
-        recentSales: all.slice(0, limit),
-      };
-    },
-
-    async registerSale(raw, createdById) {
+    async declareProduct(raw) {
       const parsed = parse(raw);
       if (!parsed.ok) return parsed;
       const data = parsed.data;
 
       const product = await productRepository.findById(data.productId);
       if (!product) return { ok: false, message: "Producto no encontrado" };
-      if (!product.isWholesale) {
-        return { ok: false, message: "Este producto no está registrado para venta al por mayor" };
-      }
 
-      const pieces = data.piecesPerUnit * data.units;
-      const result = await repo.registerSale({
-        productId: data.productId,
-        unitName: data.unitName,
-        piecesPerUnit: data.piecesPerUnit,
-        units: data.units,
-        pricePerUnit: data.pricePerUnit,
-        customer: data.customer,
-        note: data.note,
-        createdById,
+      await productRepository.update(data.productId, {
+        isWholesale: true,
+        wholesaleUnitName: data.wholesaleUnitName,
+        wholesaleUnitQuantity: data.wholesaleUnitQuantity,
       });
 
-      if (!result.ok) return { ok: false, message: result.message };
-
-      const totalPieces = product.stock - pieces;
       revalidatePath("/admin/mayoreo");
       revalidatePath("/admin");
-      if (totalPieces <= 0) revalidatePath("/catalogo");
+      revalidatePath("/");
       return {
         ok: true,
-        message: `Venta registrada: ${data.units} ${data.unitName.toLowerCase()}${
-          data.units > 1 ? "s" : ""
-        } (${pieces} piezas) por ${data.pricePerUnit * data.units}`,
+        message: `Producto declarado al por mayor: ${data.wholesaleUnitQuantity} pz por ${data.wholesaleUnitName.toLowerCase()}`,
       };
+    },
+
+    async undeclareProduct(id) {
+      const product = await productRepository.findById(id);
+      if (!product) return { ok: false, message: "Producto no encontrado" };
+      if (!product.isWholesale) return { ok: false, message: "El producto no está declarado al por mayor" };
+
+      await productRepository.update(id, {
+        isWholesale: false,
+        wholesaleUnitName: null,
+        wholesaleUnitQuantity: 1,
+      });
+
+      revalidatePath("/admin/mayoreo");
+      revalidatePath("/admin");
+      revalidatePath("/");
+      return { ok: true, message: "Producto retirado de la venta al por mayor" };
     },
   };
 }
 
-export const wholesaleService = createWholesaleService(wholesaleSaleRepository);
+export const wholesaleService = createWholesaleService();

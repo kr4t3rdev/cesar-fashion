@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { orderService, type OrderActionResult } from "@/server/application/order-service";
 import { canManage, currentUserId } from "@/server/application/roles";
-import type { ActionResult } from "@/server/domain/sale-schema";
+import type { ActionResult } from "@/server/domain/product-schema";
 
 export async function createOrderAction(
   cart: unknown,

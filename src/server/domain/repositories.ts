@@ -1,7 +1,6 @@
 import type { ProductEntity, ProductInput } from "@/server/domain/product";
 import type { UserEntity, UserInput } from "@/server/domain/user";
 import type { ComboEntity, ComboInput } from "@/server/domain/combo";
-import type { WholesaleSaleEntity, WholesaleSaleInput } from "@/server/domain/wholesale";
 import type { OrderEntity, OrderCreateInput, OrderStatus } from "@/server/domain/order";
 
 export interface ProductRepositoryPort {
@@ -27,14 +26,6 @@ export interface ComboRepositoryPort {
   create(input: ComboInput): Promise<ComboEntity>;
   update(id: string, input: Partial<ComboInput>): Promise<ComboEntity | null>;
   delete(id: string): Promise<boolean>;
-}
-
-export interface WholesaleSaleRepositoryPort {
-  findAll(options?: { limit?: number }): Promise<WholesaleSaleEntity[]>;
-  registerSale(
-    input: WholesaleSaleInput & { createdById?: string | null }
-  ): Promise<{ ok: true; sale: WholesaleSaleEntity } | { ok: false; message: string }>;
-  productTotalUnitsSold(productId: string): Promise<number>;
 }
 
 export interface OrderRepositoryPort {

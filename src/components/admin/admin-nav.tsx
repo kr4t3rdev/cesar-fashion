@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/admin", label: "Inventario", icon: Package, exact: true },
   { href: "/admin/pedidos", label: "Pedidos", icon: ReceiptText },
   { href: "/admin/combos", label: "Combos", icon: ShoppingBag },
-  { href: "/admin/mayoreo", label: "Ventas mayoristas", icon: Boxes },
+  { href: "/admin/mayoreo", label: "Por mayor", icon: Boxes },
 ];
 
 export function AdminNav({ isAdmin }: { isAdmin?: boolean }) {

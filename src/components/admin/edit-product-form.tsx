@@ -92,7 +92,7 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
         <div className="flex items-center justify-between gap-4">
           <div>
             <Label htmlFor={`wholesale-${product.id}`}>Venta al por mayor</Label>
-            <p className="text-xs text-muted-foreground">Se vende por cantidades en el panel de mayoristas.</p>
+            <p className="text-xs text-muted-foreground">Se vende por cantidades en la sección Por mayor.</p>
           </div>
           <Switch
             name="isWholesale"

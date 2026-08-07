@@ -1,23 +1,54 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTransition } from "react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { productHasWholesaleUnit, wholesaleUnitsAvailable } from "@/server/domain/wholesale";
+import { undeclareWholesaleProductAction } from "@/server/application/wholesale-actions";
 import type { WholesaleProductEntity } from "@/server/domain/wholesale";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
+
+function RemoveButton({ product }: { product: WholesaleProductEntity }) {
+  const [pending, startTransition] = useTransition();
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!confirm(`¿Retirar "${product.name}" de la venta al por mayor?`)) return;
+        startTransition(async () => {
+          await undeclareWholesaleProductAction(new FormData(e.currentTarget));
+        });
+      }}
+    >
+      <input type="hidden" name="id" value={product.id} />
+      <Button
+        type="submit"
+        variant="ghost"
+        size="sm"
+        disabled={pending}
+        aria-label={`Retirar ${product.name} de la venta al por mayor`}
+        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+      >
+        {pending ? <Loader2 className="animate-spin" /> : <Trash2 className="size-4" />}
+        Retirar
+      </Button>
+    </form>
+  );
+}
 
 export function WholesaleProductsTable({ products }: { products: WholesaleProductEntity[] }) {
   return (
     <div className="rounded-xl border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b px-5 py-4">
         <div>
-          <h2 className="font-display text-lg font-semibold">Productos de venta al por mayor</h2>
+          <h2 className="font-display text-lg font-semibold">Productos declarados al por mayor</h2>
           <p className="text-xs text-muted-foreground">
-            Se venden por cantidades según su unidad de venta. Gestiona estos productos desde Inventario.
+            {products.length} {products.length === 1 ? "producto" : "productos"} declarados. Usa el formulario para declarar o retirar productos.
           </p>
         </div>
       </div>
@@ -30,17 +61,14 @@ export function WholesaleProductsTable({ products }: { products: WholesaleProduc
             <TableHead className="text-right">Precio por unidad</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Disponible</TableHead>
+            <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {products.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                No hay productos configurados para venta al por mayor. Actívalos desde{" "}
-                <Link href="/admin" className="text-accent underline">
-                  Inventario
-                </Link>
-                .
+              <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                Aún no hay productos declarados al por mayor. Declara el primero con el formulario.
               </TableCell>
             </TableRow>
           ) : (
@@ -75,6 +103,9 @@ export function WholesaleProductsTable({ products }: { products: WholesaleProduc
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {hasUnit ? `${available} ${p.wholesaleUnitName}${available === 1 ? "" : "s"}` : "—"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <RemoveButton product={p} />
                   </TableCell>
                 </TableRow>
               );

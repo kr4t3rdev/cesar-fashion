@@ -3,7 +3,7 @@ import { orderInputSchema, cartLineSchema } from "@/server/domain/order-schema";
 import { orderReference, type CartLine, type OrderItemInput, type StockEffect } from "@/server/domain/order";
 import { productEffectivePrice } from "@/server/domain/product";
 import { comboEffectivePrice, comboMaxQuantity } from "@/server/domain/combo";
-import type { ActionResult } from "@/server/domain/sale-schema";
+import type { ActionResult } from "@/server/domain/product-schema";
 import type { OrderEntity, OrderStatus } from "@/server/domain/order";
 import type { OrderRepositoryPort } from "@/server/domain/repositories";
 import { orderRepository } from "@/server/infrastructure/prisma-order-repository";

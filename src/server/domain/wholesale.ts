@@ -1,6 +1,19 @@
+import { z } from "zod";
 import type { ProductEntity } from "@/server/domain/product";
 
 export type WholesaleProductEntity = ProductEntity;
+
+export const wholesaleDeclarationSchema = z.object({
+  productId: z.string().min(1, "Selecciona un producto"),
+  wholesaleUnitName: z
+    .string()
+    .trim()
+    .min(1, "Indica el nombre de la unidad (ej. caja, docena, pack)")
+    .max(120),
+  wholesaleUnitQuantity: z.coerce.number().int("Debe ser entero").min(1, "Debe ser al menos 1").max(1_000_000),
+});
+
+export type WholesaleDeclarationInput = z.infer<typeof wholesaleDeclarationSchema>;
 
 export function productHasWholesaleUnit(
   p: Pick<ProductEntity, "isWholesale" | "wholesaleUnitName" | "wholesaleUnitQuantity">
@@ -15,36 +28,8 @@ export function wholesaleUnitsAvailable(
   return Math.floor(p.stock / unitSize);
 }
 
-export interface WholesaleSaleEntity {
-  id: string;
-  productId: string;
-  productName: string;
-  productImageUrl: string | null;
-  unitName: string;
-  piecesPerUnit: number;
-  units: number;
-  pieces: number;
-  pricePerUnit: number;
-  total: number;
-  customer: string | null;
-  note: string | null;
-  createdAt: Date;
-  createdByName: string | null;
-}
-
-export interface WholesaleSaleInput {
-  productId: string;
-  unitName: string;
-  piecesPerUnit: number;
-  units: number;
-  pricePerUnit: number;
-  customer?: string | null;
-  note?: string | null;
-}
-
-export interface WholesaleSaleSummary {
-  totalSales: number;
-  totalRevenue: number;
-  totalPiecesSold: number;
-  recentSales: WholesaleSaleEntity[];
+export interface ActionResult {
+  ok: boolean;
+  message: string;
+  fieldErrors?: Record<string, string[]>;
 }

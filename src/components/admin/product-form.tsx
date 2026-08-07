@@ -103,7 +103,7 @@ export function ProductForm() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <Label htmlFor="isWholesale">Venta al por mayor</Label>
-            <p className="text-xs text-muted-foreground">Se vende por cantidades (cajas, docenas, packs) en el panel de mayoristas.</p>
+            <p className="text-xs text-muted-foreground">Se vende por cantidades (cajas, docenas, packs) en la sección Por mayor.</p>
           </div>
           <Switch
             name="isWholesale"
