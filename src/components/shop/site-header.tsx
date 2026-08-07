@@ -5,12 +5,14 @@ import { MobileMenu } from "./mobile-menu";
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
   { href: "/catalogo", label: "Catálogo" },
+  { href: "/combos", label: "Combos" },
   { href: "/ofertas", label: "Ofertas" },
 ];
 
 export async function SiteHeader() {
   const session = await auth();
-  const isAdmin = session?.user?.role === "admin";
+  const role = session?.user?.role;
+  const isStaff = role === "admin" || role === "gestor";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
@@ -36,7 +38,7 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {isAdmin ? (
+          {isStaff ? (
             <Link
               href="/admin"
               className="inline-flex h-11 items-center rounded-md border border-primary bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"

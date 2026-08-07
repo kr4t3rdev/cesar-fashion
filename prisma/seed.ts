@@ -11,7 +11,23 @@ function hashPassword(password: string): string {
   return `${salt}:${derived}`;
 }
 
-const PRODUCTS = [
+interface SeedProduct {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  salePrice: number | null;
+  isOnSale: boolean;
+  saleLabel: string | null;
+  stock: number;
+  featured: boolean;
+  imageUrl: string;
+  isWholesale?: boolean;
+  wholesaleUnitName?: string;
+  wholesaleUnitQuantity?: number;
+}
+
+const PRODUCTS: SeedProduct[] = [
   {
     name: "Blazer Estructurado Milano",
     description: "Blazer de corte estructurado en lana fría, hombros definidos y cierre de botón único. Pieza clave para un look de oficina impecable.",
@@ -108,7 +124,22 @@ const PRODUCTS = [
     featured: false,
     imageUrl: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80",
   },
-] as const;
+  {
+    name: "Body Spray Mary Kay (Caja x12)",
+    description: "Caja de 12 unidades de spray corporal. Venta al por mayor para reventa o regalo.",
+    category: "Accesorios",
+    price: 6.0,
+    salePrice: null,
+    isOnSale: false,
+    saleLabel: null,
+    stock: 120,
+    featured: false,
+    imageUrl: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=600&q=80",
+    isWholesale: true,
+    wholesaleUnitName: "Caja",
+    wholesaleUnitQuantity: 12,
+  },
+];
 
 async function main() {
   const adminPassword = process.env.ADMIN_PASSWORD ?? "admin1234";
@@ -123,13 +154,61 @@ async function main() {
     },
   });
 
-  await prisma.product.deleteMany();
+  const gestorPassword = process.env.GESTOR_PASSWORD ?? "gestor1234";
+  await prisma.user.upsert({
+    where: { email: "gestor@cesarfashion.com" },
+    update: {},
+    create: {
+      email: "gestor@cesarfashion.com",
+      name: "Gestor Tienda",
+      role: "gestor",
+      password: hashPassword(gestorPassword),
+    },
+  });
 
+  await prisma.product.deleteMany();
+  await prisma.combo.deleteMany();
+
+  const created: { id: string; name: string }[] = [];
   for (const p of PRODUCTS) {
-    await prisma.product.create({ data: { ...p, currency: "USD" } });
+    const { isWholesale, wholesaleUnitName, wholesaleUnitQuantity, ...rest } = p;
+    const product = await prisma.product.create({
+      data: {
+        ...rest,
+        currency: "USD",
+        isWholesale: isWholesale ?? false,
+        wholesaleUnitName: wholesaleUnitName ?? null,
+        wholesaleUnitQuantity: wholesaleUnitQuantity ?? 1,
+      },
+    });
+    created.push({ id: product.id, name: product.name });
   }
 
-  console.log(`Seed completado: ${PRODUCTS.length} productos creados.`);
+  const camisa = created.find((p) => p.name.includes("Camisa Oxford"));
+  const pantalon = created.find((p) => p.name.includes("Pantalón Chino"));
+  if (camisa && pantalon) {
+    await prisma.combo.create({
+      data: {
+        name: "Set Oficina Esencial",
+        description: "Camisa Oxford blanca + pantalón chino slim. El dúo perfecto para un look de oficina impecable.",
+        price: 115.0,
+        salePrice: 99.0,
+        currency: "USD",
+        isOnSale: true,
+        saleLabel: "Pack ahorro",
+        featured: true,
+        imageUrl: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80",
+        items: {
+          create: [
+            { productId: camisa.id, quantity: 1 },
+            { productId: pantalon.id, quantity: 1 },
+          ],
+        },
+      },
+    });
+  }
+
+  console.log(`Seed completado: ${PRODUCTS.length} productos y 1 combo creados.`);
 }
 
 main()

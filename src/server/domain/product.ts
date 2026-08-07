@@ -28,6 +28,9 @@ export interface ProductEntity {
   isOnSale: boolean;
   saleLabel: string | null;
   featured: boolean;
+  isWholesale: boolean;
+  wholesaleUnitName: string | null;
+  wholesaleUnitQuantity: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +47,9 @@ export interface ProductInput {
   isOnSale?: boolean;
   saleLabel?: string | null;
   featured?: boolean;
+  isWholesale?: boolean;
+  wholesaleUnitName?: string | null;
+  wholesaleUnitQuantity?: number;
 }
 
 export interface SaleProduct

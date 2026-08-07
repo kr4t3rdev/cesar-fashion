@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ const initialState = { ok: false, message: "" };
 export function EditProductForm({ product, onDone }: { product: ProductEntity; onDone?: () => void }) {
   const [state, formAction, pending] = useActionState(updateProductAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
+  const [isWholesale, setIsWholesale] = useState(product.isWholesale);
 
   useEffect(() => {
     if (state.ok) onDone?.();
@@ -86,6 +87,47 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
           <Label htmlFor={`featured-${product.id}`}>Destacado</Label>
           <Switch name="featured" id={`featured-${product.id}`} defaultChecked={product.featured} />
         </div>
+      </div>
+      <div className="flex flex-col gap-4 rounded-lg border bg-muted/40 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <Label htmlFor={`wholesale-${product.id}`}>Venta al por mayor</Label>
+            <p className="text-xs text-muted-foreground">Se vende por cantidades en el panel de mayoristas.</p>
+          </div>
+          <Switch
+            name="isWholesale"
+            id={`wholesale-${product.id}`}
+            checked={isWholesale}
+            onCheckedChange={(checked) => setIsWholesale(checked === true)}
+          />
+        </div>
+        {isWholesale && (
+          <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <div className="grid gap-2">
+              <Label htmlFor={`wholesale-unit-${product.id}`}>Nombre de la unidad</Label>
+              <Input
+                id={`wholesale-unit-${product.id}`}
+                name="wholesaleUnitName"
+                defaultValue={product.wholesaleUnitName ?? ""}
+                placeholder="Caja, docena, pack…"
+              />
+              {fieldErrors?.wholesaleUnitName && <p className="text-sm text-destructive">{fieldErrors.wholesaleUnitName[0]}</p>}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor={`wholesale-qty-${product.id}`}>Piezas por unidad</Label>
+              <Input
+                id={`wholesale-qty-${product.id}`}
+                name="wholesaleUnitQuantity"
+                type="number"
+                min={1}
+                defaultValue={product.wholesaleUnitQuantity}
+              />
+              {fieldErrors?.wholesaleUnitQuantity && (
+                <p className="text-sm text-destructive">{fieldErrors.wholesaleUnitQuantity[0]}</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       {state.message && (
         <div

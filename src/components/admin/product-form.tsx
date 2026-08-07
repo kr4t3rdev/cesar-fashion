@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ const initialState = { ok: false, message: "" };
 export function ProductForm() {
   const [state, formAction, pending] = useActionState(createProductAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
+  const [isWholesale, setIsWholesale] = useState(false);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
@@ -96,6 +97,37 @@ export function ProductForm() {
           </div>
           <Switch name="featured" id="featured" />
         </div>
+      </div>
+
+      <div className="flex flex-col gap-4 rounded-lg border bg-muted/40 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <Label htmlFor="isWholesale">Venta al por mayor</Label>
+            <p className="text-xs text-muted-foreground">Se vende por cantidades (cajas, docenas, packs) en el panel de mayoristas.</p>
+          </div>
+          <Switch
+            name="isWholesale"
+            id="isWholesale"
+            checked={isWholesale}
+            onCheckedChange={(checked) => setIsWholesale(checked === true)}
+          />
+        </div>
+        {isWholesale && (
+          <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <div className="grid gap-2">
+              <Label htmlFor="wholesaleUnitName">Nombre de la unidad</Label>
+              <Input id="wholesaleUnitName" name="wholesaleUnitName" placeholder="Caja, docena, pack…" />
+              {fieldErrors?.wholesaleUnitName && <p className="text-sm text-destructive">{fieldErrors.wholesaleUnitName[0]}</p>}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="wholesaleUnitQuantity">Piezas por unidad</Label>
+              <Input id="wholesaleUnitQuantity" name="wholesaleUnitQuantity" type="number" min={1} defaultValue={1} />
+              {fieldErrors?.wholesaleUnitQuantity && (
+                <p className="text-sm text-destructive">{fieldErrors.wholesaleUnitQuantity[0]}</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {state.message && (

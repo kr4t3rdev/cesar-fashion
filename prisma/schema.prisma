@@ -13,12 +13,14 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String    @default("admin")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  products      Product[]
-  accounts      Account[]
-  sessions      Session[]
+  role            String    @default("admin")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  products        Product[]
+  combos          Combo[]
+  wholesaleSales  WholesaleSale[]
+  accounts        Account[]
+  sessions        Session[]
 }
 
 model Account {
@@ -69,15 +71,75 @@ model Product {
   currency    String   @default("USD")
   stock       Int      @default(0)
   imageUrl    String?
+  isOnSale              Boolean  @default(false)
+  saleLabel             String?
+  featured              Boolean  @default(false)
+  isWholesale           Boolean  @default(false)
+  wholesaleUnitName     String?
+  wholesaleUnitQuantity Int      @default(1)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdById           String?
+  createdBy             User?    @relation(fields: [createdById], references: [id])
+
+  comboItems      ComboItem[]
+  wholesaleSales  WholesaleSale[]
+
+  @@index([isOnSale])
+  @@index([category])
+  @@index([featured])
+}
+
+model Combo {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  salePrice   Decimal? @db.Decimal(10, 2)
+  currency    String   @default("USD")
+  imageUrl    String?
   isOnSale    Boolean  @default(false)
   saleLabel   String?
   featured    Boolean  @default(false)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String?
   createdBy   User?    @relation(fields: [createdById], references: [id])
 
-  @@index([isOnSale])
-  @@index([category])
+  items ComboItem[]
+
+  @@index([isActive])
   @@index([featured])
+}
+
+model ComboItem {
+  id        String @id @default(cuid())
+  comboId   String
+  combo     Combo   @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int     @default(1)
+
+  @@unique([comboId, productId])
+}
+
+model WholesaleSale {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  unitName      String
+  piecesPerUnit Int
+  units         Int
+  pieces        Int
+  pricePerUnit  Decimal  @db.Decimal(10, 2)
+  total         Decimal  @db.Decimal(10, 2)
+  customer      String?
+  note          String?
+  createdById   String?
+  createdBy     User?    @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([productId])
 }

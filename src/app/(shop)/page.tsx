@@ -2,7 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Droplets, Shirt, ShieldCheck, Smartphone, Sparkles, Tag } from "lucide-react";
 import { ProductGrid } from "@/components/shop/product-grid";
+import { ComboGrid } from "@/components/shop/combo-grid";
 import { productService } from "@/server/application/product-service";
+import { comboService } from "@/server/application/combo-service";
 import { productIsOnSale } from "@/server/domain/product";
 
 export const metadata = {
@@ -38,10 +40,11 @@ const CATEGORIES = [
 ];
 
 export default async function HomePage() {
-  const products = await productService.listProducts();
+  const [products, combos] = await Promise.all([productService.listProducts(), comboService.listCombos()]);
   const featured = products.filter((p) => p.featured).slice(0, 4);
   const onSale = products.filter((p) => productIsOnSale(p)).slice(0, 4);
   const fallback = featured.length > 0 ? featured : products.slice(0, 4);
+  const featuredCombos = combos.slice(0, 4);
 
   return (
     <div className="flex flex-col gap-20 pb-24">
@@ -135,6 +138,25 @@ export default async function HomePage() {
         </div>
         <ProductGrid products={fallback} />
       </section>
+
+      {/* Combos */}
+      {featuredCombos.length > 0 && (
+        <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-3xl font-semibold tracking-tight">Combos que combinan</h2>
+              <p className="mt-2 text-muted-foreground">Varias piezas en un solo precio, pensadas para ti.</p>
+            </div>
+            <Link
+              href="/combos"
+              className="hidden items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+            >
+              Ver todos <ArrowRight className="size-4" />
+            </Link>
+          </div>
+          <ComboGrid combos={featuredCombos} />
+        </section>
+      )}
 
       {/* Editorial banner */}
       <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

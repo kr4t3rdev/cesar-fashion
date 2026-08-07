@@ -57,10 +57,14 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
         isOnSale: data.isOnSale,
         saleLabel: data.saleLabel,
         featured: data.featured,
+        isWholesale: data.isWholesale,
+        wholesaleUnitName: data.wholesaleUnitName,
+        wholesaleUnitQuantity: data.wholesaleUnitQuantity,
       });
       revalidatePath("/");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
+      revalidatePath("/admin/mayoreo");
       return { ok: true, message: "Producto creado correctamente" };
     },
 
@@ -80,10 +84,14 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
         isOnSale: data.isOnSale,
         saleLabel: data.saleLabel,
         featured: data.featured,
+        isWholesale: data.isWholesale,
+        wholesaleUnitName: data.wholesaleUnitName,
+        wholesaleUnitQuantity: data.wholesaleUnitQuantity,
       });
       revalidatePath("/");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
+      revalidatePath("/admin/mayoreo");
       return { ok: true, message: "Producto actualizado correctamente" };
     },
 
