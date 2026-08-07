@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { LoginForm } from "@/components/auth/login-form";
 
@@ -14,6 +16,13 @@ export default async function LoginPage() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4">
       <div className="w-full max-w-sm">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Volver a la tienda
+        </Link>
         <div className="mb-8 text-center">
           <p className="font-display text-3xl font-semibold tracking-tight">
             Cesar Fashion <span className="text-accent">LLC</span>
