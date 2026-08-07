@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { MobileMenu } from "./mobile-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -38,6 +39,7 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {isStaff ? (
             <Link
               href="/admin"
