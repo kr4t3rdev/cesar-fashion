@@ -15,8 +15,18 @@ function DialogTrigger({
   asChild,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : DialogPrimitive.Trigger;
-  return <Comp data-slot="dialog-trigger" className={cn("cursor-pointer", className)} {...props} />;
+  if (asChild && React.isValidElement(props.children)) {
+    return (
+      <DialogPrimitive.Trigger
+        data-slot="dialog-trigger"
+        className={cn("cursor-pointer", className)}
+        render={props.children as React.ReactElement<Record<string, unknown>>}
+      />
+    );
+  }
+  return (
+    <DialogPrimitive.Trigger data-slot="dialog-trigger" className={cn("cursor-pointer", className)} {...props} />
+  );
 }
 
 function DialogClose({

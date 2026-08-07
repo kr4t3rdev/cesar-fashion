@@ -44,7 +44,7 @@ export function ComboForm({ products }: { products: ComboProductOption[] }) {
         {fieldErrors?.description && <p className="text-sm text-destructive">{fieldErrors.description[0]}</p>}
       </div>
 
-      <div className="grid gap-2">
+      <div className="grid grid-cols-1 gap-2">
         <Label>Productos incluidos</Label>
         <div className="flex flex-col gap-3">
           {items.map((item, index) => (
@@ -59,7 +59,7 @@ export function ComboForm({ products }: { products: ComboProductOption[] }) {
                   next[index] = { ...next[index], productId: e.target.value };
                   setItems(next);
                 }}
-                className="border-input flex h-9 flex-1 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                className="border-input flex h-9 min-w-0 flex-1 rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               >
                 <option value="">Selecciona producto</option>
                 {availableProducts(item.productId).map((p) => (

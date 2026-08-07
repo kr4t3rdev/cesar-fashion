@@ -57,7 +57,7 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
         <Card className="lg:sticky lg:top-6">
           <CardHeader>
             <CardTitle>Nuevo producto</CardTitle>

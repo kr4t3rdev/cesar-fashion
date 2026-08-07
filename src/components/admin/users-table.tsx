@@ -1,13 +1,23 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Pencil, Trash2, Loader2, ShieldCheck, Store, User as UserIcon, Ban, UserCheck } from "lucide-react";
+import { Ban, KeyRound, Loader2, MoreVertical, Pencil, Trash2, UserCheck, ShieldCheck, Store, User as UserIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuPopup,
+  DropdownMenuPortal,
+  DropdownMenuPositioner,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { deleteUserAction, setUserStatusAction } from "@/server/application/user-actions";
 import { EditUserForm } from "@/components/admin/edit-user-form";
+import { ChangePasswordForm } from "@/components/admin/change-password-form";
 import { formatDate } from "@/lib/utils";
 import type { UserEntity, UserStatus } from "@/server/domain/user";
 
@@ -45,80 +55,101 @@ function RoleBadge({ role }: { role: string }) {
   );
 }
 
-function StatusToggle({ user }: { user: UserEntity }) {
-  const [pending, startTransition] = useTransition();
-  const isActive = user.status === "active";
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        startTransition(async () => {
-          await setUserStatusAction(new FormData(e.currentTarget));
-        });
-      }}
-    >
-      <input type="hidden" name="id" value={user.id} />
-      <input type="hidden" name="status" value={isActive ? "disabled" : "active"} />
-      <Button
-        type="submit"
-        size="sm"
-        variant="outline"
-        disabled={pending || user.role === "admin"}
-        title={user.role === "admin" ? "Las cuentas de administrador no se desactivan" : undefined}
-      >
-        {pending ? <Loader2 className="animate-spin" /> : isActive ? <Ban className="size-4" /> : <UserCheck className="size-4" />}
-        {isActive ? "Desactivar" : "Activar"}
-      </Button>
-    </form>
-  );
-}
+function UserActions({ user, currentUserId }: { user: UserEntity; currentUserId?: string }) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [pendingToggle, startToggle] = useTransition();
+  const [pendingDelete, startDelete] = useTransition();
 
-function EditDialog({ user, currentUserId }: { user: UserEntity; currentUserId?: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`Editar a ${user.name ?? user.email}`} className="hover:bg-secondary" disabled={user.id === currentUserId}>
-          <Pencil className="size-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar usuario</DialogTitle>
-          <DialogDescription>Actualiza los datos de acceso del usuario.</DialogDescription>
-        </DialogHeader>
-        <EditUserForm user={user} onDone={() => setOpen(false)} />
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function DeleteButton({ user, currentUserId }: { user: UserEntity; currentUserId?: string }) {
-  const [pending, startTransition] = useTransition();
   const isSelf = user.id === currentUserId;
+  const isActive = user.status === "active";
+  const isAdmin = user.role === "admin";
+
+  const toggle = () => {
+    if (isAdmin) return;
+    const fd = new FormData();
+    fd.set("id", user.id);
+    fd.set("status", isActive ? "disabled" : "active");
+    startToggle(async () => {
+      await setUserStatusAction(fd);
+    });
+  };
+
+  const remove = () => {
+    if (isSelf) return;
+    if (!confirm(`¿Eliminar al usuario "${user.name ?? user.email}"? Esta acción no se puede deshacer.`)) return;
+    const fd = new FormData();
+    fd.set("id", user.id);
+    startDelete(async () => {
+      await deleteUserAction(fd);
+    });
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!confirm(`¿Eliminar al usuario "${user.name ?? user.email}"? Esta acción no se puede deshacer.`)) return;
-        startTransition(async () => {
-          await deleteUserAction(new FormData(e.currentTarget));
-        });
-      }}
-    >
-      <input type="hidden" name="id" value={user.id} />
-      <Button
-        type="submit"
-        variant="ghost"
-        size="icon"
-        disabled={pending || isSelf}
-        aria-label={`Eliminar a ${user.name ?? user.email}`}
-        title={isSelf ? "No puedes eliminar tu propia cuenta" : undefined}
-        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-      >
-        {pending ? <Loader2 className="animate-spin" /> : <Trash2 className="size-4" />}
-      </Button>
-    </form>
+    <div className="flex items-center justify-end gap-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="ghost" size="icon" aria-label={`Acciones para ${user.name ?? user.email}`} className="hover:bg-secondary">
+              <MoreVertical className="size-4" />
+            </Button>
+          }
+        />
+        <DropdownMenuPortal>
+          <DropdownMenuPositioner side="bottom" align="end" sideOffset={4}>
+            <DropdownMenuPopup>
+              <DropdownMenuItem
+                onClick={() => setEditOpen(true)}
+                disabled={isSelf}
+                title={isSelf ? "No puedes editar tu propia cuenta aquí" : undefined}
+              >
+                <Pencil className="size-4" /> Editar datos
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPasswordOpen(true)}>
+                <KeyRound className="size-4" /> Cambiar contraseña
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={toggle}
+                disabled={isAdmin || pendingToggle}
+                title={isAdmin ? "Las cuentas de administrador no se desactivan" : undefined}
+              >
+                {pendingToggle ? <Loader2 className="animate-spin" /> : isActive ? <Ban className="size-4" /> : <UserCheck className="size-4" />}
+                {isActive ? "Desactivar" : "Activar"}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={remove}
+                disabled={isSelf || pendingDelete}
+                title={isSelf ? "No puedes eliminar tu propia cuenta" : undefined}
+                className="text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
+              >
+                {pendingDelete ? <Loader2 className="animate-spin" /> : <Trash2 className="size-4" />} Eliminar
+              </DropdownMenuItem>
+            </DropdownMenuPopup>
+          </DropdownMenuPositioner>
+        </DropdownMenuPortal>
+      </DropdownMenu>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar usuario</DialogTitle>
+            <DialogDescription>Actualiza los datos del usuario.</DialogDescription>
+          </DialogHeader>
+          <EditUserForm user={user} onDone={() => setEditOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cambiar contraseña</DialogTitle>
+            <DialogDescription>Establece una nueva contraseña para {user.name ?? user.email}.</DialogDescription>
+          </DialogHeader>
+          <ChangePasswordForm user={user} onDone={() => setPasswordOpen(false)} />
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -161,11 +192,7 @@ export function UsersTable({ users, currentUserId }: { users: UserEntity[]; curr
                 </TableCell>
                 <TableCell className="text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <StatusToggle user={user} />
-                    <EditDialog user={user} currentUserId={currentUserId} />
-                    <DeleteButton user={user} currentUserId={currentUserId} />
-                  </div>
+                  <UserActions user={user} currentUserId={currentUserId} />
                 </TableCell>
               </TableRow>
             );

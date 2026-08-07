@@ -12,6 +12,7 @@ export interface UserService {
   getUser(id: string): Promise<UserEntity | null>;
   createUser(input: unknown): Promise<ActionResult>;
   updateUser(id: string, input: unknown): Promise<ActionResult>;
+  changePassword(id: string, password: string): Promise<ActionResult>;
   deleteUser(id: string, currentUserId: string): Promise<ActionResult>;
   registerUser(input: unknown): Promise<ActionResult>;
   setUserStatus(id: string, status: UserStatus): Promise<ActionResult>;
@@ -86,6 +87,16 @@ export function createUserService(repo: UserRepositoryPort): UserService {
       await repo.update(id, patch);
       revalidatePath("/admin/usuarios");
       return { ok: true, message: "Usuario actualizado correctamente" };
+    },
+
+    async changePassword(id, password) {
+      const current = await repo.findById(id);
+      if (!current) return { ok: false, message: "Usuario no encontrado" };
+
+      const passwordHash = await hashPassword(password);
+      await repo.update(id, { password: passwordHash });
+      revalidatePath("/admin/usuarios");
+      return { ok: true, message: "Contraseña actualizada correctamente" };
     },
 
     async deleteUser(id, currentUserId) {

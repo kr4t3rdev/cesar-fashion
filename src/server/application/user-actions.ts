@@ -29,6 +29,18 @@ export async function updateUserAction(_prevState: unknown, formData: FormData) 
   });
 }
 
+export async function changePasswordAction(_prevState: unknown, formData: FormData) {
+  const session = await auth();
+  if (!isAdmin(session)) return { ok: false, message: "No autorizado" };
+  const id = formData.get("id") as string;
+  const password = formData.get("password") ?? "";
+  if (!id) return { ok: false, message: "Falta el id del usuario" };
+  if (typeof password !== "string" || password.trim().length < 6) {
+    return { ok: false, message: "Datos inválidos", fieldErrors: { password: ["La contraseña debe tener al menos 6 caracteres"] } };
+  }
+  return userService.changePassword(id, password);
+}
+
 export async function deleteUserAction(formData: FormData) {
   const session = await auth();
   if (!isAdmin(session)) return { ok: false, message: "No autorizado" };

@@ -33,11 +33,6 @@ export function EditUserForm({ user, onDone }: { user: UserEntity; onDone?: () =
         {fieldErrors?.email && <p className="text-sm text-destructive">{fieldErrors.email[0]}</p>}
       </div>
       <div className="grid gap-2">
-        <Label htmlFor={`edit-password-${user.id}`}>Nueva contraseña</Label>
-        <Input id={`edit-password-${user.id}`} name="password" type="password" placeholder="Dejar vacío para no cambiarla" />
-        {fieldErrors?.password && <p className="text-sm text-destructive">{fieldErrors.password[0]}</p>}
-      </div>
-      <div className="grid gap-2">
         <Label htmlFor={`edit-role-${user.id}`}>Rol</Label>
         <select
           id={`edit-role-${user.id}`}
