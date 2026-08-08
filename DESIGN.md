@@ -12,6 +12,7 @@ Paleta OKLCH (tema claro y oscuro):
 | `--foreground` | oklch(0.19 0.015 260) — tinta | Texto principal |
 | `--primary` | oklch(0.19 0.015 260) | Botones/acentos de marca |
 | `--accent` | oklch(0.5 0.13 25) — oxblood | Ofertas, énfasis editorial |
+| `--accent-strong` | oklch(0.5 0.13 25) · dark: oklch(0.74 0.12 25) | Acento de texto pequeño (marca) — AA en modo oscuro |
 | `--muted` | oklch(0.945 0.01 85) | Fondos secundarios |
 | `--destructive` | oklch(0.55 0.2 25) | Errores/eliminar |
 
