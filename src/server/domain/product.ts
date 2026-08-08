@@ -11,6 +11,7 @@ export const CATEGORIES = [
   "Teléfonos",
   "Accesorios para teléfonos",
   "Aseo personal",
+  "Perfumes",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
