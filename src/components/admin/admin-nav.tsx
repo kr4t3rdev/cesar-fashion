@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, Users, ShoppingBag, Boxes, ReceiptText, LogOut } from "lucide-react";
+import { Package, Users, ShoppingBag, Boxes, ReceiptText, Banknote, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Inventario", icon: Package, exact: true },
+  { href: "/admin/ventas", label: "Ventas", icon: Banknote },
   { href: "/admin/pedidos", label: "Pedidos", icon: ReceiptText },
   { href: "/admin/combos", label: "Combos", icon: ShoppingBag },
   { href: "/admin/mayoreo", label: "Por mayor", icon: Boxes },
