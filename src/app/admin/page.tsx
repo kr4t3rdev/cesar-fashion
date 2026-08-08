@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/login");
+  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
 
   const [products, pendingOrders] = await Promise.all([
     productService.listProducts(),
