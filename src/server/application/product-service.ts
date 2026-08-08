@@ -62,6 +62,7 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
         wholesaleUnitQuantity: data.wholesaleUnitQuantity,
       });
       revalidatePath("/");
+      revalidatePath("/catalogo");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
       revalidatePath("/admin/mayoreo");
@@ -89,6 +90,7 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
         wholesaleUnitQuantity: data.wholesaleUnitQuantity,
       });
       revalidatePath("/");
+      revalidatePath("/catalogo");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
       revalidatePath("/admin/mayoreo");
@@ -104,6 +106,7 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
       }
       await repo.update(id, { isOnSale: next });
       revalidatePath("/");
+      revalidatePath("/catalogo");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
       return {
@@ -115,6 +118,7 @@ export function createProductService(repo: ProductRepositoryPort): ProductServic
     async deleteProduct(id) {
       const ok = await repo.delete(id);
       revalidatePath("/");
+      revalidatePath("/catalogo");
       revalidatePath("/ofertas");
       revalidatePath("/admin");
       return ok

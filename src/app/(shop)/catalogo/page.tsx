@@ -19,10 +19,12 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   Teléfonos: "Smartphones Samsung y Xiaomi Redmi",
   "Accesorios para teléfonos": "Covers, micas y complementos",
   "Aseo personal": "Cremas, sprays y cuidado personal",
+  Perfumes: "Perfumes y fragancias para hombre y mujer",
 };
 
 export default async function CatalogoPage() {
   const products = await productService.listProducts();
+  const availableCount = products.filter((p) => p.stock > 0).length;
 
   const grouped = new Map<string, typeof products>();
   for (const category of CATEGORIES) {
@@ -42,7 +44,7 @@ export default async function CatalogoPage() {
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Colección completa</p>
         <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">Catálogo</h1>
         <p className="mt-3 max-w-md text-muted-foreground">
-          {products.length} {products.length === 1 ? "pieza disponible" : "piezas disponibles"} en inventario,
+          {availableCount} {availableCount === 1 ? "pieza disponible" : "piezas disponibles"} en inventario,
           organizadas por categoría.
         </p>
       </div>
