@@ -9,7 +9,7 @@ export async function createProductAction(_prevState: unknown, formData: FormDat
   if (!canManage(session)) {
     return { ok: false, message: "No autorizado" };
   }
-  return productService.createProduct(formData);
+  return productService.createProduct(Object.fromEntries(formData));
 }
 
 export async function updateProductAction(_prevState: unknown, formData: FormData) {
@@ -19,7 +19,7 @@ export async function updateProductAction(_prevState: unknown, formData: FormDat
   }
   const id = formData.get("id") as string;
   if (!id) return { ok: false, message: "Falta el id del producto" };
-  return productService.updateProduct(id, formData);
+  return productService.updateProduct(id, Object.fromEntries(formData));
 }
 
 export async function toggleSaleAction(formData: FormData) {
