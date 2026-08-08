@@ -98,11 +98,7 @@ function UserActions({ user, currentUserId }: { user: UserEntity; currentUserId?
         <DropdownMenuPortal>
           <DropdownMenuPositioner side="bottom" align="end" sideOffset={4}>
             <DropdownMenuPopup>
-              <DropdownMenuItem
-                onClick={() => setEditOpen(true)}
-                disabled={isSelf}
-                title={isSelf ? "No puedes editar tu propia cuenta aquí" : undefined}
-              >
+              <DropdownMenuItem onClick={() => setEditOpen(true)}>
                 <Pencil className="size-4" /> Editar datos
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setPasswordOpen(true)}>

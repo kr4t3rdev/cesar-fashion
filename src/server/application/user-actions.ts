@@ -26,7 +26,7 @@ export async function updateUserAction(_prevState: unknown, formData: FormData) 
     email: formData.get("email"),
     password: formData.get("password") ?? "",
     role: formData.get("role"),
-  });
+  }, currentUserId(session));
 }
 
 export async function changePasswordAction(_prevState: unknown, formData: FormData) {

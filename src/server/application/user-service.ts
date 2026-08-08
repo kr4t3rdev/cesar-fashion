@@ -11,7 +11,7 @@ export interface UserService {
   listUsers(): Promise<UserEntity[]>;
   getUser(id: string): Promise<UserEntity | null>;
   createUser(input: unknown): Promise<ActionResult>;
-  updateUser(id: string, input: unknown): Promise<ActionResult>;
+  updateUser(id: string, input: unknown, currentUserId?: string): Promise<ActionResult>;
   changePassword(id: string, password: string): Promise<ActionResult>;
   deleteUser(id: string, currentUserId: string): Promise<ActionResult>;
   registerUser(input: unknown): Promise<ActionResult>;
@@ -61,13 +61,21 @@ export function createUserService(repo: UserRepositoryPort): UserService {
       return { ok: true, message: "Usuario creado correctamente" };
     },
 
-    async updateUser(id, raw) {
+    async updateUser(id, raw, currentUserId) {
       const parsed = parse(raw);
       if (!parsed.ok) return parsed;
       const data = parsed.data;
 
       const current = await repo.findById(id);
       if (!current) return { ok: false, message: "Usuario no encontrado" };
+
+      if (id === currentUserId && current.role === "admin" && data.role !== "admin") {
+        return {
+          ok: false,
+          message: "No puedes cambiar tu propio rol de administrador",
+          fieldErrors: { role: ["No puedes quitarte el rol de administrador a ti mismo"] },
+        };
+      }
 
       const otherWithEmail = await repo.findByEmail(data.email);
       if (otherWithEmail && otherWithEmail.id !== id) {
