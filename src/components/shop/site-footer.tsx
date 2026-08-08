@@ -65,24 +65,11 @@ export function SiteFooter() {
   return (
     <footer className="border-t bg-secondary/60">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-        {/* Newsletter */}
-        <div className="flex flex-col gap-8 border-b pb-12 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-lg">
-            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              Nuevas piezas, primero para ti
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Catálogo fresco, combos y ofertas directo a tu correo. Sin spam.
-            </p>
-          </div>
-          <NewsletterForm />
-        </div>
-
         {/* Columns */}
         <div className="grid gap-x-8 gap-y-10 py-12 sm:grid-cols-2 lg:grid-cols-12">
           <div className="flex flex-col items-start sm:col-span-2 lg:col-span-4">
-            <p className="font-display text-xs font-semibold tracking-tight">
-              kr4t3r<span className="text-accent-strong">dev</span>
+            <p className="font-display text-xl font-semibold tracking-tight">
+              Cesar Fashion<span className="text-accent-strong">LLC</span>
             </p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Boutique editorial de moda, belleza y tecnología, con cada pieza curada con intención.
@@ -166,7 +153,7 @@ export function SiteFooter() {
         {/* Barra final */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t pt-8 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Cesar Fashion LLC. Todos los derechos reservados.
+            © {new Date().getFullYear()} kr4t3r<span className="text-accent-strong">dev</span>. Todos los derechos reservados.
           </p>
         </div>
       </div>
