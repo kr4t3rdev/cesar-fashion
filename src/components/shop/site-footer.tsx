@@ -12,9 +12,9 @@ const SHOP_LINKS = [
 ];
 
 const HELP_LINKS = [
-  { label: "Cómo comprar", href: "/catalogo" },
-  { label: "Finalizar pedido", href: "/checkout" },
-  { label: "Envíos y entregas", href: WHATSAPP_URL, external: true },
+  { label: "Cómo comprar", href: "/ayuda#como-comprar" },
+  { label: "Finalizar pedido", href: "/ayuda#finalizar-pedido" },
+  { label: "Envíos y entregas", href: "/ayuda#envios-y-entregas" },
 ];
 
 const ACCOUNT_LINKS = [
