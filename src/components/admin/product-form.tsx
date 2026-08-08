@@ -17,6 +17,8 @@ export function ProductForm() {
   const [state, formAction, pending] = useActionState(createProductAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
   const [isWholesale, setIsWholesale] = useState(false);
+  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [categoryMode, setCategoryMode] = useState<"preset" | "custom">("preset");
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
@@ -34,19 +36,42 @@ export function ProductForm() {
 
       <div className="grid gap-2">
         <Label htmlFor="category">Categoría</Label>
-        <select
-          id="category"
-          name="category"
-          required
-          defaultValue="Camisetas"
-          className="border-input data-[placeholder]:text-muted-foreground flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        {categoryMode === "preset" ? (
+          <select
+            id="category"
+            name="category"
+            required
+            value={category}
+            onChange={(e) => {
+              if (e.target.value === "__custom__") {
+                setCategoryMode("custom");
+              } else {
+                setCategory(e.target.value);
+              }
+            }}
+            className="border-input data-[placeholder]:text-muted-foreground flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+            <option value="__custom__">Otra categoría…</option>
+          </select>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              id="category"
+              name="category"
+              placeholder="Escribe la nueva categoría"
+              autoFocus
+              required
+            />
+            <Button type="button" variant="outline" onClick={() => setCategoryMode("preset")}>
+              Volver
+            </Button>
+          </div>
+        )}
         {fieldErrors?.category && <p className="text-sm text-destructive">{fieldErrors.category[0]}</p>}
       </div>
 

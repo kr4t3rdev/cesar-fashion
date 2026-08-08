@@ -17,6 +17,9 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
   const [state, formAction, pending] = useActionState(updateProductAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
   const [isWholesale, setIsWholesale] = useState(product.isWholesale);
+  const isCustomCategory = !CATEGORIES.includes(product.category as (typeof CATEGORIES)[number]);
+  const [categoryMode, setCategoryMode] = useState<"preset" | "custom">(isCustomCategory ? "custom" : "preset");
+  const [category, setCategory] = useState(isCustomCategory ? CATEGORIES[0] : product.category);
 
   useEffect(() => {
     if (state.ok) onDone?.();
@@ -37,18 +40,42 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
       </div>
       <div className="grid gap-2">
         <Label htmlFor={`category-${product.id}`}>Categoría</Label>
-        <select
-          id={`category-${product.id}`}
-          name="category"
-          defaultValue={product.category}
-          className="border-input flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        {categoryMode === "preset" ? (
+          <select
+            id={`category-${product.id}`}
+            name="category"
+            value={category}
+            onChange={(e) => {
+              if (e.target.value === "__custom__") {
+                setCategoryMode("custom");
+              } else {
+                setCategory(e.target.value);
+              }
+            }}
+            className="border-input flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+            <option value="__custom__">Otra categoría…</option>
+          </select>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              id={`category-${product.id}`}
+              name="category"
+              defaultValue={isCustomCategory ? product.category : ""}
+              placeholder="Escribe la nueva categoría"
+              autoFocus
+              required
+            />
+            <Button type="button" variant="outline" onClick={() => setCategoryMode("preset")}>
+              Volver
+            </Button>
+          </div>
+        )}
         {fieldErrors?.category && <p className="text-sm text-destructive">{fieldErrors.category[0]}</p>}
       </div>
       <div className="grid grid-cols-2 gap-4">
