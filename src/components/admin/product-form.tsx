@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { createProductAction } from "@/server/application/actions";
 import { CATEGORIES } from "@/server/domain/product";
+import { ProductImageField } from "@/components/admin/product-image-field";
 import { cn } from "@/lib/utils";
 
 const initialState = { ok: false, message: "" };
@@ -94,11 +95,7 @@ export function ProductForm() {
           <Input id="stock" name="stock" type="number" step="1" min="0" placeholder="10" required />
           {fieldErrors?.stock && <p className="text-sm text-destructive">{fieldErrors.stock[0]}</p>}
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="imageUrl">URL de imagen</Label>
-          <Input id="imageUrl" name="imageUrl" type="url" placeholder="https://…" />
-          {fieldErrors?.imageUrl && <p className="text-sm text-destructive">{fieldErrors.imageUrl[0]}</p>}
-        </div>
+        <ProductImageField id="imageUrl" />
       </div>
 
       <div className="grid gap-2">

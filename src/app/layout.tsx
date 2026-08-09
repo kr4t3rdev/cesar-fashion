@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { uploadRouter } from "@/server/uploadthing/router";
+import "@uploadthing/react/styles.css";
 import "./globals.css";
 
 const inter = Inter({
@@ -31,7 +35,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NextSSRPlugin routerConfig={extractRouterConfig(uploadRouter)} />
+        {children}
+      </body>
     </html>
   );
 }

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { updateProductAction } from "@/server/application/actions";
 import { CATEGORIES, type ProductEntity } from "@/server/domain/product";
+import { ProductImageField } from "@/components/admin/product-image-field";
 import { cn } from "@/lib/utils";
 
 const initialState = { ok: false, message: "" };
@@ -96,10 +97,7 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
           <Input id={`stock-${product.id}`} name="stock" type="number" step="1" min="0" defaultValue={product.stock} required />
           {fieldErrors?.stock && <p className="text-sm text-destructive">{fieldErrors.stock[0]}</p>}
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor={`image-${product.id}`}>URL imagen</Label>
-          <Input id={`image-${product.id}`} name="imageUrl" type="url" defaultValue={product.imageUrl ?? ""} />
-        </div>
+        <ProductImageField id={`image-${product.id}`} initialUrl={product.imageUrl} />
       </div>
       <div className="grid gap-2">
         <Label htmlFor={`label-${product.id}`}>Etiqueta de oferta</Label>
