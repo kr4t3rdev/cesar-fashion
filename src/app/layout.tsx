@@ -3,7 +3,6 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { uploadRouter } from "@/server/uploadthing/router";
-import "@uploadthing/react/styles.css";
 import "./globals.css";
 
 const inter = Inter({

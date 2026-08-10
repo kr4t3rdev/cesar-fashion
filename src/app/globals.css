@@ -1,3 +1,4 @@
+@import "@uploadthing/react/styles.css" layer(uploadthing);
 @import "tailwindcss";
 @import "tw-animate-css";
 
