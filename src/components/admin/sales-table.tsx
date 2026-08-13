@@ -1,9 +1,12 @@
 "use client";
 
+import { Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { orderReference, type OrderEntity } from "@/server/domain/order";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { downloadOrderPdf, downloadOrdersReportPdf } from "@/lib/order-pdf";
 
 export function SalesTable({ sales }: { sales: OrderEntity[] }) {
   return (
@@ -15,6 +18,9 @@ export function SalesTable({ sales }: { sales: OrderEntity[] }) {
             Pedidos de la tienda marcados como pagados · {sales.length} {sales.length === 1 ? "venta" : "ventas"}
           </p>
         </div>
+        <Button type="button" variant="outline" size="sm" onClick={() => downloadOrdersReportPdf(sales, "Reporte de ventas")}>
+          <Download className="size-4" /> Descargar reporte
+        </Button>
       </div>
       <div className="overflow-x-auto">
         <Table>
@@ -25,13 +31,14 @@ export function SalesTable({ sales }: { sales: OrderEntity[] }) {
               <TableHead>Artículos</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead>Confirmado por</TableHead>
-              <TableHead>Fecha</TableHead>
+            <TableHead>Fecha</TableHead>
+            <TableHead className="text-right">PDF</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sales.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                   Todavía no hay ventas registradas. Cuando un pedido se marque como pagado aparecerá aquí.
                 </TableCell>
               </TableRow>
@@ -75,6 +82,11 @@ export function SalesTable({ sales }: { sales: OrderEntity[] }) {
                   </TableCell>
                   <TableCell className="text-muted-foreground">{sale.confirmedByName ?? "—"}</TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(sale.createdAt)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button type="button" size="sm" variant="ghost" onClick={() => downloadOrderPdf(sale)} aria-label={`Descargar PDF de ${orderReference(sale.id)}`}>
+                      <FileText className="size-4" /> PDF
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}
