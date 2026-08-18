@@ -39,5 +39,5 @@
 - [x] 5.1 Configurar Railway con servicios independientes, health check `/actuator/health`, variables y CORS/cookies de producción.
 - [x] 5.2a API: ejecutar JUnit (52 tests: unit de reglas, servicios con Mockito, IT de Order/Auth contra Postgres local con profile `test`).
 - [x] 5.2b Frontend: `npm run lint`, `npx tsc --noEmit`, build y Playwright.
-- [ ] 5.3 Verificar manualmente login de hash legado, roles, pedido, cancelación y recuperación de stock.
+- [x] 5.3 Verificar en producción: login de hash legado (scrypt→bcrypt auto-rehash confirmado en gestor2), roles admin/gestor, pedido CF-9LPJLE creado y cancelado por admin con recuperación de stock.
 - [ ] 5.4 Monitorear errores, latencia y stock durante el despliegue gradual; conservar rollback hasta estabilizar.
