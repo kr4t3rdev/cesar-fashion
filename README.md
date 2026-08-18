@@ -55,6 +55,10 @@ Configurables en `.env` con `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` / `start` | Build y producción |
 | `npm run lint` | ESLint |
-| `npm run db:migrate` | Aplicar migraciones Prisma |
-| `npm run db:seed` | Sembrar BD |
-| `npm run db:studio` | Prisma Studio |
+| `npx tsc --noEmit` | Chequeo de tipos |
+| `npm run test:e2e` | Playwright E2E (requiere API en :8081 y frontend en :3000) |
+| `npm run test:e2e:headed` | Playwright E2E en modo visible |
+
+## Tests E2E
+
+Requieren el API (`cesar-fashion-api`) corriendo en `http://localhost:8081` y el frontend en `http://localhost:3000` (dev o build). Cobertura: login admin, catálogo y detalle de producto, ofertas, y flujo completo de pedido → cancelación con reposición de stock. Credenciales E2E configurables via `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`, `E2E_CUSTOMER_EMAIL`, `E2E_CUSTOMER_PASSWORD` (por defecto usa el gestor `gestor@cesarfashion.com` / `gestor1234` y el admin del entorno).

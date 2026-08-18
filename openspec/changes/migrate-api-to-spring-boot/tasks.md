@@ -37,6 +37,7 @@
 ## Phase 5: Despliegue y verificación
 
 - [x] 5.1 Configurar Railway con servicios independientes, health check `/actuator/health`, variables y CORS/cookies de producción.
-- [ ] 5.2 Ejecutar JUnit, Testcontainers, `npm run lint`, `npx tsc --noEmit`, build y Playwright.
+- [x] 5.2a API: ejecutar JUnit (52 tests: unit de reglas, servicios con Mockito, IT de Order/Auth contra Postgres local con profile `test`).
+- [x] 5.2b Frontend: `npm run lint`, `npx tsc --noEmit`, build y Playwright.
 - [ ] 5.3 Verificar manualmente login de hash legado, roles, pedido, cancelación y recuperación de stock.
 - [ ] 5.4 Monitorear errores, latencia y stock durante el despliegue gradual; conservar rollback hasta estabilizar.
