@@ -36,7 +36,7 @@
 
 ## Phase 5: Despliegue y verificación
 
-- [ ] 5.1 Configurar Railway con servicios independientes, health check `/actuator/health`, variables y CORS/cookies de producción.
+- [x] 5.1 Configurar Railway con servicios independientes, health check `/actuator/health`, variables y CORS/cookies de producción.
 - [ ] 5.2 Ejecutar JUnit, Testcontainers, `npm run lint`, `npx tsc --noEmit`, build y Playwright.
 - [ ] 5.3 Verificar manualmente login de hash legado, roles, pedido, cancelación y recuperación de stock.
 - [ ] 5.4 Monitorear errores, latencia y stock durante el despliegue gradual; conservar rollback hasta estabilizar.
