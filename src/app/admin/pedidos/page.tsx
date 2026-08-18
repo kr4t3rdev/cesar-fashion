@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrdersTable } from "@/components/admin/orders-table";
-import { orderService } from "@/server/application/order-service";
+import { listOrdersFromApi } from "@/lib/api/server-data";
 import { formatCurrency } from "@/lib/utils";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Pedidos — Administración",
 };
 
 export default async function AdminOrdersPage() {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const orders = await orderService.listOrders({ limit: 200 });
+  const orders = await listOrdersFromApi({ limit: 200 });
   const pending = orders.filter((o) => o.status === "pending");
   const paid = orders.filter((o) => o.status === "paid");
   const cancelled = orders.filter((o) => o.status === "cancelled");

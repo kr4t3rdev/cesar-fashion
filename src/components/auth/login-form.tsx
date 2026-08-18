@@ -3,12 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { checkAccountStatusAction } from "@/server/application/register-actions";
+import { loginAction } from "@/lib/api";
 
 export function LoginForm() {
   const router = useRouter();
@@ -21,25 +20,21 @@ export function LoginForm() {
     setError(null);
     const formData = new FormData(e.currentTarget);
     const email = String(formData.get("email") ?? "");
-    const result = await signIn("credentials", {
-      email,
-      password: formData.get("password"),
-      redirect: false,
-    });
-    if (result?.error) {
-      const status = await checkAccountStatusAction(email);
-      if (status === "pending") {
-        setError("Tu cuenta está pendiente de activación por el administrador.");
-      } else if (status === "disabled") {
-        setError("Tu cuenta está desactivada. Contacta al administrador.");
-      } else {
+    const result = await loginAction(email, String(formData.get("password") ?? ""));
+    if (!result.ok) {
+      if (result.status === 401) {
         setError("Credenciales incorrectas");
+      } else if (result.status === 403) {
+        setError(result.message || "Tu cuenta no está activa");
+      } else {
+        setError(result.message || "Error al iniciar sesión");
       }
       setLoading(false);
       return;
     }
+    const user = result.data?.user;
     setLoading(false);
-    router.push("/admin");
+    router.push(user?.role === "usuario" ? "/" : "/admin");
     router.refresh();
   }
 

@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const API_UPSTREAM = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -7,17 +9,20 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
-      {
-        protocol: "https",
-        hostname: "**.ufs.sh",
-      },
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-      },
     ],
   },
-  serverExternalPackages: ["uploadthing/server"],
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${API_UPSTREAM}/api/v1/:path*`,
+      },
+      {
+        source: "/uploads/:path*",
+        destination: `${API_UPSTREAM}/uploads/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

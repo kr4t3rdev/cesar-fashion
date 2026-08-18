@@ -2,9 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
-import { productDiscountPercent, productEffectivePrice } from "@/server/domain/product";
+import { productDiscountPercent, productEffectivePrice } from "@/lib/domain/product";
 import { formatCurrency } from "@/lib/utils";
-import type { ProductEntity } from "@/server/domain/product";
+import type { ProductEntity } from "@/lib/domain/product";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
 

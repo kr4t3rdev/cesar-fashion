@@ -3,9 +3,9 @@ import Image from "next/image";
 import { ArrowRight, Droplets, Shirt, ShieldCheck, Smartphone, Sparkles, Tag } from "lucide-react";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { ComboGrid } from "@/components/shop/combo-grid";
-import { productService } from "@/server/application/product-service";
-import { comboService } from "@/server/application/combo-service";
-import { productIsOnSale } from "@/server/domain/product";
+import { catalogApi } from "@/lib/api";
+import { productFromApi, comboFromApi } from "@/lib/api/adapters";
+import { productIsOnSale } from "@/lib/domain/product";
 
 export const metadata = {
   title: "Moda, Belleza y Tecnología — Cesar Fashion LLC",
@@ -40,7 +40,9 @@ const CATEGORIES = [
 ];
 
 export default async function HomePage() {
-  const [products, combos] = await Promise.all([productService.listProducts(), comboService.listCombos()]);
+  const [apiProducts, apiCombos] = await Promise.all([catalogApi.products(), catalogApi.combos()]);
+  const products = apiProducts.map(productFromApi);
+  const combos = apiCombos.map(comboFromApi);
   const featured = products.filter((p) => p.featured).slice(0, 4);
   const onSale = products.filter((p) => productIsOnSale(p)).slice(0, 4);
   const fallback = featured.length > 0 ? featured : products.slice(0, 4);

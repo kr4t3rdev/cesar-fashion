@@ -4,7 +4,7 @@ import { Download, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { orderReference, type OrderEntity } from "@/server/domain/order";
+import { orderReference, type OrderEntity } from "@/lib/domain/order";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { downloadOrderPdf, downloadOrdersReportPdf } from "@/lib/order-pdf";
 

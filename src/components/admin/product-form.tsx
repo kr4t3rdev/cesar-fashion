@@ -1,14 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { createProductAction } from "@/server/application/actions";
-import { CATEGORIES } from "@/server/domain/product";
+import { createProductAction } from "@/lib/api/actions";
+import { CATEGORIES } from "@/lib/domain/product";
 import { ProductImageField } from "@/components/admin/product-image-field";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,11 @@ export function ProductForm() {
   const [isWholesale, setIsWholesale] = useState(false);
   const [category, setCategory] = useState<string>(CATEGORIES[0]);
   const [categoryMode, setCategoryMode] = useState<"preset" | "custom">("preset");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.ok) router.refresh();
+  }, [state.ok, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

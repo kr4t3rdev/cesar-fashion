@@ -1,12 +1,13 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Download, FileText, Loader2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { markOrderPaidAction, cancelOrderAction } from "@/server/application/order-actions";
-import { orderReference, ORDER_STATUS_LABELS, type OrderEntity, type OrderStatus } from "@/server/domain/order";
+import { markOrderPaidAction, cancelOrderAction } from "@/lib/api/actions";
+import { orderReference, ORDER_STATUS_LABELS, type OrderEntity, type OrderStatus } from "@/lib/domain/order";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { downloadOrderPdf, downloadOrdersReportPdf } from "@/lib/order-pdf";
 
@@ -19,6 +20,7 @@ const STATUS_VARIANT: Record<OrderStatus, "secondary" | "success" | "destructive
 function OrderActions({ order }: { order: OrderEntity }) {
   const [paidPending, startPaid] = useTransition();
   const [cancelPending, startCancel] = useTransition();
+  const router = useRouter();
 
   return (
     <div className="flex items-center justify-end gap-1">
@@ -31,6 +33,7 @@ function OrderActions({ order }: { order: OrderEntity }) {
             e.preventDefault();
             startPaid(async () => {
               await markOrderPaidAction(new FormData(e.currentTarget));
+              router.refresh();
             });
           }}>
             <input type="hidden" name="id" value={order.id} />
@@ -43,6 +46,7 @@ function OrderActions({ order }: { order: OrderEntity }) {
             if (!confirm("¿Cancelar el pedido? Se repondrá el stock.")) return;
             startCancel(async () => {
               await cancelOrderAction(new FormData(e.currentTarget));
+              router.refresh();
             });
           }}>
             <input type="hidden" name="id" value={order.id} />

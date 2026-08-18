@@ -1,23 +1,22 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WholesaleDeclarationForm } from "@/components/admin/wholesale-declaration-form";
 import { WholesaleProductsTable } from "@/components/admin/wholesale-products-table";
-import { wholesaleService } from "@/server/application/wholesale-service";
+import { catalogApi } from "@/lib/api";
+import { productFromApi } from "@/lib/api/adapters";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Productos al por mayor — Administración",
 };
 
 export default async function AdminWholesalePage() {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const [products, wholesaleProducts] = await Promise.all([
-    wholesaleService.listProducts(),
-    wholesaleService.listWholesaleProducts(),
-  ]);
+  const products = (await catalogApi.products()).map(productFromApi);
+  const wholesaleProducts = products.filter((p) => p.isWholesale);
 
   const productOptions = products.map((p) => ({
     id: p.id,

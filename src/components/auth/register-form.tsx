@@ -6,7 +6,7 @@ import { CheckCircle2, Loader2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerAction } from "@/server/application/register-actions";
+import { registerAction } from "@/lib/api/actions";
 import { cn } from "@/lib/utils";
 
 const initialState = { ok: false, message: "" };

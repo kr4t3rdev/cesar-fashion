@@ -2,28 +2,31 @@
 
 import { useState } from "react";
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toggleComboAction, deleteComboAction } from "@/server/application/combo-actions";
+import { toggleComboAction, deleteComboAction } from "@/lib/api/actions";
 import { EditComboForm } from "@/components/admin/edit-combo-form";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { comboAvailable, comboTotalUnits, type ComboEntity } from "@/server/domain/combo";
+import { comboAvailable, comboTotalUnits, type ComboEntity } from "@/lib/domain/combo";
 import type { ComboProductOption } from "@/components/admin/combo-form";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
 
 function ToggleButton({ combo }: { combo: ComboEntity }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
           await toggleComboAction(new FormData(e.currentTarget));
+          router.refresh();
         });
       }}
     >
@@ -46,6 +49,7 @@ function ToggleButton({ combo }: { combo: ComboEntity }) {
 
 function DeleteButton({ combo }: { combo: ComboEntity }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
@@ -53,6 +57,7 @@ function DeleteButton({ combo }: { combo: ComboEntity }) {
         if (!confirm(`¿Eliminar el combo "${combo.name}"? Esta acción no se puede deshacer.`)) return;
         startTransition(async () => {
           await deleteComboAction(new FormData(e.currentTarget));
+          router.refresh();
         });
       }}
     >

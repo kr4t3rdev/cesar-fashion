@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SalesTable } from "@/components/admin/sales-table";
-import { orderService } from "@/server/application/order-service";
+import { listOrdersFromApi } from "@/lib/api/server-data";
 import { formatCurrency } from "@/lib/utils";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Ventas — Administración",
 };
 
 export default async function AdminSalesPage() {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const sales = await orderService.listOrders({ status: "paid", limit: 200 });
+  const sales = await listOrdersFromApi({ status: "paid", limit: 200 });
   const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
   const totalPieces = sales.reduce(
     (acc, sale) => acc + sale.items.reduce((sum, item) => sum + item.quantity, 0),

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle2, Loader2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/components/shop/cart/cart-context";
-import { createOrderAction } from "@/server/application/order-actions";
+import { createOrderAction } from "@/lib/api/actions";
 import { CheckoutGate } from "@/components/shop/checkout-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

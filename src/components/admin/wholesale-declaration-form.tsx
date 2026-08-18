@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, PackagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { declareWholesaleProductAction } from "@/server/application/wholesale-actions";
+import { declareWholesaleProductAction } from "@/lib/api/actions";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export interface WholesaleProductOption {
@@ -24,6 +25,11 @@ const initialState = { ok: false, message: "" };
 export function WholesaleDeclarationForm({ products }: { products: WholesaleProductOption[] }) {
   const [state, formAction, pending] = useActionState(declareWholesaleProductAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.ok) router.refresh();
+  }, [state.ok, router]);
 
   const [selected, setSelected] = useState("");
   const [unitName, setUnitName] = useState("");

@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/shop/product-card";
-import type { ProductEntity } from "@/server/domain/product";
+import type { ProductEntity } from "@/lib/domain/product";
 
 export function ProductGrid({ products }: { products: ProductEntity[] }) {
   if (products.length === 0) {

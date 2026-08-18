@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserForm } from "@/components/admin/user-form";
 import { UsersTable } from "@/components/admin/users-table";
-import { userService } from "@/server/application/user-service";
+import { listUsersFromApi } from "@/lib/api/server-data";
+import { getServerUser, isAdmin } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Usuarios — Administración",
 };
 
 export default async function AdminUsersPage() {
-  const session = await auth();
-  if (session?.user?.role !== "admin") redirect("/admin");
+  const user = await getServerUser();
+  if (!user || !isAdmin(user)) redirect("/admin");
 
-  const users = await userService.listUsers();
+  const users = await listUsersFromApi();
 
   return (
     <div className="flex flex-col gap-8">
@@ -29,7 +29,7 @@ export default async function AdminUsersPage() {
           </CardContent>
         </Card>
 
-        <UsersTable users={users} currentUserId={session.user.id} />
+        <UsersTable users={users} currentUserId={user.id} />
       </div>
     </div>
   );

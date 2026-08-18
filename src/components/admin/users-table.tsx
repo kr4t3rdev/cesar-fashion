@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Ban, KeyRound, Loader2, MoreVertical, Pencil, Trash2, UserCheck, ShieldCheck, Store, User as UserIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -15,11 +16,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteUserAction, setUserStatusAction } from "@/server/application/user-actions";
+import { deleteUserAction, setUserStatusAction } from "@/lib/api/actions";
 import { EditUserForm } from "@/components/admin/edit-user-form";
 import { ChangePasswordForm } from "@/components/admin/change-password-form";
 import { formatDate } from "@/lib/utils";
-import type { UserEntity, UserStatus } from "@/server/domain/user";
+import type { UserEntity, UserStatus } from "@/lib/domain/user";
 
 const STATUS_LABELS: Record<UserStatus, string> = {
   pending: "Pendiente",
@@ -60,6 +61,7 @@ function UserActions({ user, currentUserId }: { user: UserEntity; currentUserId?
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [pendingToggle, startToggle] = useTransition();
   const [pendingDelete, startDelete] = useTransition();
+  const router = useRouter();
 
   const isSelf = user.id === currentUserId;
   const isActive = user.status === "active";
@@ -72,6 +74,7 @@ function UserActions({ user, currentUserId }: { user: UserEntity; currentUserId?
     fd.set("status", isActive ? "disabled" : "active");
     startToggle(async () => {
       await setUserStatusAction(fd);
+      router.refresh();
     });
   };
 
@@ -82,6 +85,7 @@ function UserActions({ user, currentUserId }: { user: UserEntity; currentUserId?
     fd.set("id", user.id);
     startDelete(async () => {
       await deleteUserAction(fd);
+      router.refresh();
     });
   };
 

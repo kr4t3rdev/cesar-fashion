@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { orderReference, type OrderEntity } from "@/server/domain/order";
+import { orderReference, type OrderEntity } from "@/lib/domain/order";
 
 const BRAND = "Cesar Fashion LLC";
 const MARGIN = 16;

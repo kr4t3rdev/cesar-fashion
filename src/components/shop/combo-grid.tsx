@@ -1,5 +1,5 @@
 import { ComboCard } from "@/components/shop/combo-card";
-import type { ComboEntity } from "@/server/domain/combo";
+import type { ComboEntity } from "@/lib/domain/combo";
 
 export function ComboGrid({ combos }: { combos: ComboEntity[] }) {
   if (combos.length === 0) {

@@ -1,12 +1,13 @@
 import { ComboGrid } from "@/components/shop/combo-grid";
-import { comboService } from "@/server/application/combo-service";
+import { catalogApi } from "@/lib/api";
+import { comboFromApi } from "@/lib/api/adapters";
 
 export const metadata = {
   title: "Combos",
 };
 
 export default async function CombosPage() {
-  const combos = await comboService.listCombos();
+  const combos = (await catalogApi.combos()).map(comboFromApi);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">

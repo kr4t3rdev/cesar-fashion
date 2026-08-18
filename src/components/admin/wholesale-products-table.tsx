@@ -1,20 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { productHasWholesaleUnit, wholesaleUnitsAvailable } from "@/server/domain/wholesale";
-import { undeclareWholesaleProductAction } from "@/server/application/wholesale-actions";
-import type { WholesaleProductEntity } from "@/server/domain/wholesale";
+import { productHasWholesaleUnit, wholesaleUnitsAvailable } from "@/lib/domain/wholesale";
+import { undeclareWholesaleProductAction } from "@/lib/api/actions";
+import type { WholesaleProductEntity } from "@/lib/domain/wholesale";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
 
 function RemoveButton({ product }: { product: WholesaleProductEntity }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
@@ -22,6 +24,7 @@ function RemoveButton({ product }: { product: WholesaleProductEntity }) {
         if (!confirm(`¿Retirar "${product.name}" de la venta al por mayor?`)) return;
         startTransition(async () => {
           await undeclareWholesaleProductAction(new FormData(e.currentTarget));
+          router.refresh();
         });
       }}
     >

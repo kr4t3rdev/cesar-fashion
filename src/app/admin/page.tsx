@@ -1,25 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductForm } from "@/components/admin/product-form";
 import { InventoryTable } from "@/components/admin/inventory-table";
-import { productService } from "@/server/application/product-service";
-import { orderService } from "@/server/application/order-service";
+import { productFromApi } from "@/lib/api/adapters";
+import { catalogApi } from "@/lib/api";
+import { pendingOrdersCount } from "@/lib/api/server-data";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Dashboard — Administración",
 };
 
 export default async function AdminDashboardPage() {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const [products, pendingOrders] = await Promise.all([
-    productService.listProducts(),
-    orderService.pendingCount(),
+  const [apiProducts, pendingOrders] = await Promise.all([
+    catalogApi.products(),
+    pendingOrdersCount(),
   ]);
+  const products = apiProducts.map(productFromApi);
 
   const totalStock = products.reduce((acc, p) => acc + p.stock, 0);
   const onSaleCount = products.filter((p) => p.isOnSale).length;

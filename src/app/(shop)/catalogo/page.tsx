@@ -1,6 +1,7 @@
 import { ProductGrid } from "@/components/shop/product-grid";
-import { productService } from "@/server/application/product-service";
-import { CATEGORIES } from "@/server/domain/product";
+import { catalogApi } from "@/lib/api";
+import { productFromApi } from "@/lib/api/adapters";
+import { CATEGORIES } from "@/lib/domain/product";
 
 export const metadata = {
   title: "Catálogo",
@@ -23,7 +24,7 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 export default async function CatalogoPage() {
-  const products = await productService.listProducts();
+  const products = (await catalogApi.products()).map(productFromApi);
   const availableCount = products.filter((p) => p.stock > 0).length;
 
   const grouped = new Map<string, typeof products>();

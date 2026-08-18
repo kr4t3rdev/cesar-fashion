@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComboForm } from "@/components/admin/combo-form";
 import { CombosTable } from "@/components/admin/combos-table";
-import { comboService } from "@/server/application/combo-service";
-import { productService } from "@/server/application/product-service";
+import { catalogApi } from "@/lib/api";
+import { comboFromApi, productFromApi } from "@/lib/api/adapters";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Combos — Administración",
 };
 
 export default async function AdminCombosPage() {
-  const session = await auth();
-  if (!session?.user || (session.user.role !== "admin" && session.user.role !== "gestor")) redirect("/login");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const [combos, products] = await Promise.all([comboService.listCombos({ includeInactive: true }), productService.listProducts()]);
+  const [apiCombos, apiProducts] = await Promise.all([catalogApi.combos(true), catalogApi.products()]);
+  const combos = apiCombos.map(comboFromApi);
+  const products = apiProducts.map(productFromApi);
 
   const productOptions = products.map((p) => ({ id: p.id, name: p.name, stock: p.stock, price: p.price, currency: p.currency }));
 

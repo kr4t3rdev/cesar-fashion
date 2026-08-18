@@ -1,14 +1,15 @@
 import { Tag } from "lucide-react";
 import { ProductGrid } from "@/components/shop/product-grid";
-import { productService } from "@/server/application/product-service";
-import { productIsOnSale } from "@/server/domain/product";
+import { catalogApi } from "@/lib/api";
+import { productFromApi } from "@/lib/api/adapters";
+import { productIsOnSale } from "@/lib/domain/product";
 
 export const metadata = {
   title: "Ofertas",
 };
 
 export default async function OfertasPage() {
-  const products = await productService.listProducts();
+  const products = (await catalogApi.products()).map(productFromApi);
   const onSale = products.filter((p) => productIsOnSale(p));
 
   return (

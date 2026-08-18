@@ -2,8 +2,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
-import { productService } from "@/server/application/product-service";
-import { productDiscountPercent, productEffectivePrice } from "@/server/domain/product";
+import { catalogApi } from "@/lib/api";
+import { productFromApi } from "@/lib/api/adapters";
+import { productDiscountPercent, productEffectivePrice } from "@/lib/domain/product";
 import { formatCurrency } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
@@ -16,8 +17,12 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await productService.getProduct(id);
-  if (!product) notFound();
+  let product: ReturnType<typeof productFromApi>;
+  try {
+    product = productFromApi(await catalogApi.getProduct(id));
+  } catch {
+    notFound();
+  }
 
   const isOnSale = product.isOnSale && product.salePrice !== null;
   const discount = productDiscountPercent(product);

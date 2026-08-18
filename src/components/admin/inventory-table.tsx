@@ -2,27 +2,30 @@
 
 import { useState } from "react";
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Pencil, Trash2, Tag, BadgePercent, Loader2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toggleSaleAction, deleteProductAction } from "@/server/application/actions";
+import { toggleSaleAction, deleteProductAction } from "@/lib/api/actions";
 import { EditProductForm } from "@/components/admin/edit-product-form";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import type { ProductEntity } from "@/server/domain/product";
+import type { ProductEntity } from "@/lib/domain/product";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
 
 function ToggleSaleButton({ product }: { product: ProductEntity }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
           await toggleSaleAction(new FormData(e.currentTarget));
+          router.refresh();
         });
       }}
     >
@@ -44,6 +47,7 @@ function ToggleSaleButton({ product }: { product: ProductEntity }) {
 
 function DeleteButton({ product }: { product: ProductEntity }) {
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
@@ -51,6 +55,7 @@ function DeleteButton({ product }: { product: ProductEntity }) {
         if (!confirm(`¿Eliminar "${product.name}"? Esta acción no se puede deshacer.`)) return;
         startTransition(async () => {
           await deleteProductAction(new FormData(e.currentTarget));
+          router.refresh();
         });
       }}
     >

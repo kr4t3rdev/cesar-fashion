@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
-import { comboService } from "@/server/application/combo-service";
+import { catalogApi } from "@/lib/api";
+import { comboFromApi } from "@/lib/api/adapters";
 import {
   comboAvailable,
   comboDiscountPercent,
@@ -12,7 +13,7 @@ import {
   comboMaxQuantity,
   comboTotalUnits,
   type ComboEntity,
-} from "@/server/domain/combo";
+} from "@/lib/domain/combo";
 import { formatCurrency } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";
@@ -25,7 +26,7 @@ export const dynamic = "force-dynamic";
 
 async function getCombo(id: string): Promise<ComboEntity | null> {
   try {
-    return await comboService.getCombo(id);
+    return comboFromApi(await catalogApi.getCombo(id));
   } catch {
     return null;
   }

@@ -1,14 +1,15 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { updateProductAction } from "@/server/application/actions";
-import { CATEGORIES, type ProductEntity } from "@/server/domain/product";
+import { updateProductAction } from "@/lib/api/actions";
+import { CATEGORIES, type ProductEntity } from "@/lib/domain/product";
 import { ProductImageField } from "@/components/admin/product-image-field";
 import { cn } from "@/lib/utils";
 
@@ -21,10 +22,14 @@ export function EditProductForm({ product, onDone }: { product: ProductEntity; o
   const isCustomCategory = !CATEGORIES.includes(product.category as (typeof CATEGORIES)[number]);
   const [categoryMode, setCategoryMode] = useState<"preset" | "custom">(isCustomCategory ? "custom" : "preset");
   const [category, setCategory] = useState(isCustomCategory ? CATEGORIES[0] : product.category);
+  const router = useRouter();
 
   useEffect(() => {
-    if (state.ok) onDone?.();
-  }, [state.ok, onDone]);
+    if (state.ok) {
+      router.refresh();
+      onDone?.();
+    }
+  }, [state.ok, onDone, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">

@@ -9,7 +9,7 @@ import {
   comboMaxQuantity,
   comboTotalUnits,
   type ComboEntity,
-} from "@/server/domain/combo";
+} from "@/lib/domain/combo";
 import { formatCurrency } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/placeholder-product.svg";

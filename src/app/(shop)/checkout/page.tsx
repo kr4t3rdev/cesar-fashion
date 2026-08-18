@@ -1,23 +1,21 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
 import { CheckoutForm } from "@/components/shop/checkout-form";
 import { CheckoutGate } from "@/components/shop/checkout-gate";
-import { isActiveUser } from "@/server/application/roles";
+import { getServerUser, isActiveUser } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Finalizar pedido — Cesar Fashion",
 };
 
 export default async function CheckoutPage() {
-  const session = await auth();
+  const user = await getServerUser();
 
-  if (!session?.user) {
+  if (!user) {
     return <CheckoutGate status="guest" />;
   }
 
-  const status = session.user.status ?? "pending";
-  if (!isActiveUser(session)) {
-    return <CheckoutGate status={status === "disabled" ? "disabled" : "pending"} />;
+  if (!isActiveUser(user)) {
+    return <CheckoutGate status={user.status === "disabled" ? "disabled" : "pending"} />;
   }
 
   return <CheckoutForm />;

@@ -1,14 +1,41 @@
 "use client";
 
-import { useState } from "react";
-import { twMerge } from "tailwind-merge";
-import { UploadButton } from "@/lib/uploadthing";
+import { useRef, useState } from "react";
+import { Loader2, UploadCloud } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api/client";
+import type { UploadResponse } from "@/lib/api/types";
 
 export function ProductImageField({ id, initialUrl }: { id: string; initialUrl?: string | null }) {
   const [imageUrl, setImageUrl] = useState(initialUrl ?? "");
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const body = await apiFetch<UploadResponse>("/api/v1/uploads/images", {
+        method: "POST",
+        body: (() => {
+          const fd = new FormData();
+          fd.append("file", file);
+          return fd;
+        })(),
+      });
+      setImageUrl(body.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Error al subir la imagen");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
 
   return (
     <div className="grid gap-2">
@@ -21,25 +48,22 @@ export function ProductImageField({ id, initialUrl }: { id: string; initialUrl?:
         onChange={(e) => setImageUrl(e.target.value)}
         placeholder="https://…"
       />
-      <UploadButton
-        endpoint="productImage"
-        onClientUploadComplete={(res) => {
-          const url = res[0]?.ufsUrl;
-          if (url) {
-            setImageUrl(url);
-            setUploadError(null);
-          }
-        }}
-        onUploadError={(error: Error) => setUploadError(error.message)}
-        config={{ cn: twMerge }}
-        appearance={{
-          button:
-            "h-9 w-full rounded-md border border-border bg-foreground text-sm font-medium text-background " +
-            "transition-colors hover:bg-foreground/90 " +
-            "data-[state=ready]:bg-foreground data-[state=ready]:hover:bg-foreground/90 data-[state=ready]:text-background " +
-            "data-[state=readying]:bg-foreground/80 data-[state=uploading]:bg-foreground/80",
-          allowedContent: "hidden",
-        }}
+      <Button
+        type="button"
+        variant="outline"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        className="h-9 w-full"
+      >
+        {uploading ? <Loader2 className="animate-spin" /> : <UploadCloud className="size-4" />}
+        {uploading ? "Subiendo…" : "Subir imagen"}
+      </Button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleUpload}
       />
       {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
       {imageUrl && (

@@ -1,14 +1,15 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Plus, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { updateComboAction } from "@/server/application/combo-actions";
-import type { ComboEntity } from "@/server/domain/combo";
+import { updateComboAction } from "@/lib/api/actions";
+import type { ComboEntity } from "@/lib/domain/combo";
 import type { ComboProductOption } from "@/components/admin/combo-form";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -29,10 +30,14 @@ export function EditComboForm({
   const [items, setItems] = useState(
     combo.items.map((i) => ({ productId: i.productId, quantity: i.quantity }))
   );
+  const router = useRouter();
 
   useEffect(() => {
-    if (state.ok) onDone?.();
-  }, [state.ok, onDone]);
+    if (state.ok) {
+      router.refresh();
+      onDone?.();
+    }
+  }, [state.ok, onDone, router]);
 
   const availableProducts = (excludeId: string) => {
     const used = items.map((i) => i.productId).filter((id) => id !== "" && id !== excludeId);

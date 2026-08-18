@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/auth";
 import { LoginForm } from "@/components/auth/login-form";
+import { getServerUser } from "@/lib/api/server-auth";
 
 export const metadata: Metadata = {
   title: "Iniciar sesión",
 };
 
 export default async function LoginPage() {
-  const session = await auth();
-  if (session?.user) redirect(session.user.role === "usuario" ? "/" : "/admin");
+  const user = await getServerUser();
+  if (user) redirect(user.role === "usuario" ? "/" : "/admin");
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4">

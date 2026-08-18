@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Package, Users, ShoppingBag, Boxes, ReceiptText, Banknote, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { authApi } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -16,6 +16,7 @@ const LINKS = [
 
 export function AdminNav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const links = isAdmin
     ? [...LINKS, { href: "/admin/usuarios", label: "Usuarios", icon: Users }]
@@ -47,7 +48,11 @@ export function AdminNav({ isAdmin }: { isAdmin?: boolean }) {
           Tienda
         </Link>
         <button
-          onClick={() => signOut({ callbackUrl: "/" })}
+          onClick={async () => {
+            await authApi.logout();
+            router.push("/");
+            router.refresh();
+          }}
           className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-destructive"
         >
           <LogOut className="size-4" />

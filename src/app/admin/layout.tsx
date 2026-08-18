@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { getServerUser, isStaff } from "@/lib/api/server-auth";
 
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (!session?.user) redirect("/login");
-  if (role !== "admin" && role !== "gestor") redirect("/");
+  const user = await getServerUser();
+  if (!user || !isStaff(user)) redirect("/login");
 
-  const isAdmin = role === "admin";
+  const isAdmin = user.role === "admin";
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -19,7 +17,7 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Panel de administración</p>
             <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">Dashboard</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Bienvenido, {session.user.name ?? session.user.email}
+              Bienvenido, {user.name ?? user.email}
               {isAdmin ? "" : " · Gestor"}
             </p>
           </div>

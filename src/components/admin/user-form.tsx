@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createUserAction } from "@/server/application/user-actions";
-import { USER_ROLES } from "@/server/domain/user";
+import { createUserAction } from "@/lib/api/actions";
+import { USER_ROLES } from "@/lib/domain/user";
 import { cn } from "@/lib/utils";
 
 const initialState = { ok: false, message: "" };
@@ -14,6 +15,11 @@ const initialState = { ok: false, message: "" };
 export function UserForm() {
   const [state, formAction, pending] = useActionState(createUserAction, initialState);
   const fieldErrors = (state as { fieldErrors?: Record<string, string[]> })?.fieldErrors;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.ok) router.refresh();
+  }, [state.ok, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
