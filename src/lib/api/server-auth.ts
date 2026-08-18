@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { apiFetch } from "./client";
 import type { AuthMe } from "./types";
 
-const UPSTREAM = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+const UPSTREAM = process.env.API_UPSTREAM ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 export const TOKEN_COOKIE = "cesar_token";
 export const API_UPSTREAM = UPSTREAM;
 

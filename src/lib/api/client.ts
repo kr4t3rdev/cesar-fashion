@@ -1,10 +1,16 @@
 /**
- * Base del API. En dev y prod el frontend proxya /api/v1/** a través de
- * next.config.ts rewrites (mismo origen), de modo que la cookie HttpOnly
- * `cesar_token` fluye igual que cualquier cookie del sitio. NEXT_PUBLIC_API_URL
- * solo se usa si se desea apuntar directo al API en otro origen.
+ * Base del API.
+ *
+ * - Navegador: "" → rutas relativas (/api/v1/...) que proxya next.config.ts
+ *   al API (mismo origen). Así la cookie HttpOnly `cesar_token` queda fijada al
+ *   dominio del frontend, donde los Server Components la leen con cookies().
+ * - Servidor: el upstream absoluto (API_UPSTREAM server-only; fallback
+ *   NEXT_PUBLIC_API_URL para dev) porque un fetch de Node no pasa por el proxy.
  */
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const SERVER_UPSTREAM =
+  process.env.API_UPSTREAM ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+
+export const API_URL = typeof window === "undefined" ? SERVER_UPSTREAM : "";
 
 export interface ApiErrorBody {
   detail?: string;

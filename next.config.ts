@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_UPSTREAM = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+const API_UPSTREAM = process.env.API_UPSTREAM ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 
 const nextConfig: NextConfig = {
   images: {
